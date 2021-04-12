@@ -12,7 +12,7 @@ public class PhotoDto {
 
     private String photoName;
 
-    private Long album_id;
+    private Long albumId;
 
     private LocalDateTime loadDate;
 
