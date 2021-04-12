@@ -15,4 +15,6 @@ public class PhotoDto {
     private Long album_id;
 
     private LocalDateTime loadDate;
+
+    private String link;
 }
