@@ -14,7 +14,5 @@ public class PhotoDto {
 
     private Long album_id;
 
-    private String loadSource;
-
     private LocalDateTime loadDate;
 }
