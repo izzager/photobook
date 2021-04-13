@@ -15,7 +15,7 @@ public class PhotoConverter implements Converter<Photo, PhotoDto> {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Value("${photobookapp.downloading-directory}")
+    @Value("${photobookapp.host-path}")
     private String hostPath;
 
     @Override
