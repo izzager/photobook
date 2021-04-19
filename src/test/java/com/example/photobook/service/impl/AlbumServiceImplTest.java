@@ -1,10 +1,11 @@
 package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.AlbumDto;
+import com.example.photobook.dto.CreateAlbumDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
 import com.example.photobook.helper.AlbumRepositoryHelper;
-import com.example.photobook.mapperToEntity.AlbumMapper;
+import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.util.FileZipper;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ public class AlbumServiceImplTest {
     private AlbumRepositoryHelper albumRepositoryHelper;
 
     @Mock
-    private AlbumMapper albumMapper;
+    private CreateAlbumDtoMapper createAlbumDtoMapper;
 
     @Test
     public void findAllAlbums_passes() {
@@ -57,14 +58,14 @@ public class AlbumServiceImplTest {
 
     @Test
     public void createAlbum_passes() {
-        AlbumDto albumDto = new AlbumDto();
+        CreateAlbumDto albumDto = new CreateAlbumDto();
         Album album = new Album();
 
-        when(albumMapper.toEntity(albumDto)).thenReturn(album);
+        when(createAlbumDtoMapper.toEntity(albumDto)).thenReturn(album);
         when(albumRepository.save(album)).thenReturn(album);
         albumService.createAlbum(albumDto);
 
-        verify(albumMapper).toEntity(albumDto);
+        verify(createAlbumDtoMapper).toEntity(albumDto);
         verify(albumRepository).save(album);
         verify(modelMapper).map(album, AlbumDto.class);
     }

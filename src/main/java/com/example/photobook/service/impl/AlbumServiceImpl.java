@@ -1,9 +1,10 @@
 package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.AlbumDto;
+import com.example.photobook.dto.CreateAlbumDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.helper.AlbumRepositoryHelper;
-import com.example.photobook.mapperToEntity.AlbumMapper;
+import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.util.FileZipper;
@@ -23,7 +24,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final AlbumRepository albumRepository;
     private final ModelMapper modelMapper;
     private final AlbumRepositoryHelper albumRepositoryHelper;
-    private final AlbumMapper albumMapper;
+    private final CreateAlbumDtoMapper createAlbumDtoMapper;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
@@ -37,8 +38,8 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public AlbumDto createAlbum(AlbumDto albumDto) {
-        Album album = albumMapper.toEntity(albumDto);
+    public AlbumDto createAlbum(CreateAlbumDto albumDto) {
+        Album album = createAlbumDtoMapper.toEntity(albumDto);
         return modelMapper.map(albumRepository.save(album), AlbumDto.class);
     }
 
