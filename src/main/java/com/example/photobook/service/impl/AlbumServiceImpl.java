@@ -43,10 +43,10 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public AlbumDto deleteAlbum(Long albumId) {
-        Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
-        albumRepository.delete(album);
-        return modelMapper.map(album, AlbumDto.class);
+    public void deleteAlbum(Long albumId) {
+        albumRepository
+                .findById(albumId)
+                .ifPresent(albumRepository::delete);
     }
 
     @Override

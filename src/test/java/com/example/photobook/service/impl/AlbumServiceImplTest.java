@@ -18,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import javax.servlet.ServletOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,16 +71,13 @@ public class AlbumServiceImplTest {
 
     @Test
     public void deleteAlbum_albumExists_passes() {
-        AlbumDto albumDto = new AlbumDto();
         Album album = new Album();
 
-        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
-        when(modelMapper.map(album, AlbumDto.class)).thenReturn(albumDto);
+        when(albumRepository.findById(ALBUM_ID)).thenReturn(Optional.of(album));
         albumService.deleteAlbum(ALBUM_ID);
 
         verify(albumRepository).delete(album);
-        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
-        verify(modelMapper).map(album, AlbumDto.class);
+        verify(albumRepository).findById(ALBUM_ID);
     }
 
     @Test
