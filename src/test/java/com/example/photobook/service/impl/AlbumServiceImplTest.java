@@ -16,8 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,8 +83,8 @@ public class AlbumServiceImplTest {
     }
 
     @Test
-    public void downloadAsZip_passes() throws IOException {
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+    public void downloadAsZip_passes() {
+        ServletOutputStream servletOutputStream = Mockito.mock(ServletOutputStream.class);
         Album album = new Album();
         List<Photo> photos = new ArrayList<>();
         photos.add(new Photo());
@@ -94,8 +92,7 @@ public class AlbumServiceImplTest {
         Mockito.mockStatic(FileZipper.class);
 
         when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
-        when(response.getOutputStream()).thenReturn(Mockito.mock(ServletOutputStream.class));
-        albumService.downloadAsZip(ALBUM_ID, response);
+        albumService.downloadAsZip(ALBUM_ID, servletOutputStream);
 
         verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
     }

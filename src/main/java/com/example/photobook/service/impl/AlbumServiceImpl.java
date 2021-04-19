@@ -12,8 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.servlet.ServletOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,20 +50,17 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void downloadAsZip(Long albumId, HttpServletResponse response) {
+    public void downloadAsZip(Long albumId, ServletOutputStream servletOutputStream) {
         Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
         List<String> files = album.getPhotos()
                 .stream()
                 .map(photo -> pathToFiles + photo.getPhotoName())
                 .collect(Collectors.toList());
+        FileZipper.zip(files, servletOutputStream);
+    }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.addHeader("Content-Disposition",
-                "attachment; filename=\"" + album.getAlbumName() + ".zip\"");
-        try {
-            FileZipper.zip(files, response.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public String findAlbumName(Long albumId) {
+        return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
     }
 }

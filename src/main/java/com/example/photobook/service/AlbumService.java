@@ -2,12 +2,13 @@ package com.example.photobook.service;
 
 import com.example.photobook.dto.AlbumDto;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletOutputStream;
 import java.util.List;
 
 public interface AlbumService {
     List<AlbumDto> findAllAlbums();
     AlbumDto createAlbum(AlbumDto albumDto);
     AlbumDto deleteAlbum(Long albumId);
-    void downloadAsZip(Long albumId, HttpServletResponse response);
+    void downloadAsZip(Long albumId, ServletOutputStream servletOutputStream);
+    String findAlbumName(Long albumId);
 }
