@@ -45,9 +45,9 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public void deleteAlbum(Long albumId) {
-        albumRepository
-                .findById(albumId)
-                .ifPresent(albumRepository::delete);
+        if (albumRepository.existsById(albumId)) {
+            albumRepository.deleteById(albumId);
+        }
     }
 
     @Override
