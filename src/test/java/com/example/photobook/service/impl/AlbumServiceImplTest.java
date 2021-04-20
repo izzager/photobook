@@ -12,11 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,26 +73,26 @@ public class AlbumServiceImplTest {
 
     @Test
     public void deleteAlbum_albumExists_passes() {
-        Album album = new Album();
-
-        when(albumRepository.findById(ALBUM_ID)).thenReturn(Optional.of(album));
+        when(albumRepository.existsById(ALBUM_ID)).thenReturn(true);
         albumService.deleteAlbum(ALBUM_ID);
 
-        verify(albumRepository).delete(album);
-        verify(albumRepository).findById(ALBUM_ID);
+        verify(albumRepository).existsById(ALBUM_ID);
+        verify(albumRepository).deleteById(ALBUM_ID);
     }
 
     @Test
     public void downloadAsZip_passes() {
-        ServletOutputStream servletOutputStream = Mockito.mock(ServletOutputStream.class);
         Album album = new Album();
         List<Photo> photos = new ArrayList<>();
         photos.add(new Photo());
         album.setPhotos(photos);
-        Mockito.mockStatic(FileZipper.class);
+        List<String> files = new ArrayList<>();
 
+        try(MockedStatic<FileZipper> fileZipperMockedStatic = Mockito.mockStatic(FileZipper.class)) {
+            fileZipperMockedStatic.when((MockedStatic.Verification) FileZipper.zip(files)).thenReturn(new ByteArrayOutputStream(0));
+        }
         when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
-        albumService.downloadAsZip(ALBUM_ID, servletOutputStream);
+        albumService.downloadAsZip(ALBUM_ID);
 
         verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
     }

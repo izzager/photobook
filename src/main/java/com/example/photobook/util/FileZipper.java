@@ -3,7 +3,7 @@ package com.example.photobook.util;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,8 +13,9 @@ import java.util.zip.ZipOutputStream;
 
 @Component
 public class FileZipper {
-    public static void zip(List<String> files, ServletOutputStream sos) {
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(sos)) {
+    public static ByteArrayOutputStream zip(List<String> files) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(out)) {
             for (String file : files) {
                 File fileToZip = new File(file);
                 zipOutputStream.putNextEntry(new ZipEntry(fileToZip.getName()));
@@ -27,5 +28,6 @@ public class FileZipper {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+        return out;
     }
 }

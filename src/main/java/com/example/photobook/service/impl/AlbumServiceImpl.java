@@ -11,9 +11,11 @@ import com.example.photobook.util.FileZipper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,13 +53,14 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void downloadAsZip(Long albumId, ServletOutputStream servletOutputStream) {
+    public InputStreamResource downloadAsZip(Long albumId) {
         Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
         List<String> files = album.getPhotos()
                 .stream()
-                .map(photo -> pathToFiles + photo.getPhotoName())
+                .map(photo -> pathToFiles + "/" + photo.getPhotoName())
                 .collect(Collectors.toList());
-        FileZipper.zip(files, servletOutputStream);
+        ByteArrayOutputStream outputStream = FileZipper.zip(files);
+        return new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray()));
     }
 
     @Override
