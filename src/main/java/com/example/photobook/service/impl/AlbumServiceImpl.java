@@ -11,11 +11,9 @@ import com.example.photobook.util.FileZipper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,14 +51,27 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public InputStreamResource downloadAsZip(Long albumId) {
+    public File downloadAsZip(Long albumId) {
         Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
         List<String> files = album.getPhotos()
                 .stream()
                 .map(photo -> pathToFiles + "/" + photo.getPhotoName())
                 .collect(Collectors.toList());
-        ByteArrayOutputStream outputStream = FileZipper.zip(files);
-        return new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray()));
+        ByteArrayOutputStream zippedAlbum = FileZipper.zip(files);
+
+        //write zipped album to File
+        File file = null;
+        try {
+            file = File.createTempFile(album.getAlbumName(), "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (OutputStream outputStream = new FileOutputStream(file)) {
+            zippedAlbum.writeTo(outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 
     @Override
