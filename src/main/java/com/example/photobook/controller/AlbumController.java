@@ -2,6 +2,7 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.AlbumDto;
 import com.example.photobook.dto.CreateAlbumDto;
+import com.example.photobook.exception.ResourceNotFoundException;
 import com.example.photobook.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,9 +50,11 @@ public class AlbumController {
     @GetMapping("{id}/download")
     public ResponseEntity<byte[]> downloadAlbum(@PathVariable Long id,
                                                 HttpServletResponse response) throws IOException {
-        File file = albumService.downloadAsZip(id);
+        Optional<File> fileOptional = albumService.downloadAsZip(id);
+        File file = fileOptional
+                .orElseThrow(() -> new ResourceNotFoundException("Album not found"));
         response.addHeader("Content-Disposition",
-                "attachment; filename=" + file.getName() + ".zip");
+                "attachment; filename=" + file.getName());
         return new ResponseEntity<>(FileUtils.readFileToByteArray(file), HttpStatus.OK);
     }
 

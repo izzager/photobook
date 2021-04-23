@@ -13,8 +13,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +56,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public File downloadAsZip(Long albumId) {
+    public Optional<File> downloadAsZip(Long albumId) {
         Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
         List<String> files = album.getPhotos()
                 .stream()
@@ -62,7 +67,7 @@ public class AlbumServiceImpl implements AlbumService {
         //write zipped album to File
         File file = null;
         try {
-            file = File.createTempFile(album.getAlbumName(), "");
+            file = File.createTempFile(album.getAlbumName(), ".zip");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,7 +76,7 @@ public class AlbumServiceImpl implements AlbumService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return file;
+        return Optional.of(file);
     }
 
     @Override
