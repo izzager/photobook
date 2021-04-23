@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +55,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Optional<File> downloadAsZip(Long albumId) {
+    public File downloadAsZip(Long albumId) {
         Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
         List<String> files = album.getPhotos()
                 .stream()
@@ -71,18 +70,18 @@ public class AlbumServiceImpl implements AlbumService {
         return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
     }
 
-    private Optional<File> getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) {
-        File file = null;
+    private File getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) {
+        File file;
         try {
             file = File.createTempFile(album.getAlbumName(), ".zip");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("An error occurred while downloading the archive");
         }
         try (OutputStream outputStream = new FileOutputStream(file)) {
             zippedAlbum.writeTo(outputStream);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("An error occurred while downloading the archive");
         }
-        return Optional.of(file);
+        return file;
     }
 }

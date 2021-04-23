@@ -27,6 +27,12 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return e.getMessage();
     }
 
+    @ExceptionHandler({IllegalArgumentException.class})
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleIllegalArgumentException(final IllegalArgumentException e) {
+        return e.getMessage();
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,
