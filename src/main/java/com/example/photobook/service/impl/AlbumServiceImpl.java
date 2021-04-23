@@ -55,8 +55,10 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public File downloadAsZip(Long albumId) {
-        Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
+    public File downloadAsZip(Long albumId) throws IOException {
+        Album album = albumRepository
+                .findById(albumId)
+                .orElseThrow(() -> new IllegalArgumentException("Album not found"));
         List<String> files = album.getPhotos()
                 .stream()
                 .map(photo -> pathToFiles + "/" + photo.getPhotoName())
@@ -70,17 +72,10 @@ public class AlbumServiceImpl implements AlbumService {
         return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
     }
 
-    private File getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) {
-        File file;
-        try {
-            file = File.createTempFile(album.getAlbumName(), ".zip");
-        } catch (IOException e) {
-            throw new IllegalArgumentException("An error occurred while downloading the archive");
-        }
+    private File getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) throws IOException {
+        File file = File.createTempFile(album.getAlbumName(), ".zip");
         try (OutputStream outputStream = new FileOutputStream(file)) {
             zippedAlbum.writeTo(outputStream);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("An error occurred while downloading the archive");
         }
         return file;
     }

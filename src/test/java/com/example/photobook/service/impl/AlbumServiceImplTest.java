@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.ALBUM_NAME;
@@ -83,7 +84,7 @@ public class AlbumServiceImplTest {
     }
 
     @Test
-    public void downloadAsZip_passes() {
+    public void downloadAsZip_passes() throws IOException {
         Album album = new Album();
         album.setAlbumName(ALBUM_NAME);
         List<Photo> photos = new ArrayList<>();
@@ -100,10 +101,10 @@ public class AlbumServiceImplTest {
         try (MockedStatic<FileZipper> fileZipperMockedStatic = Mockito.mockStatic(FileZipper.class)) {
             fileZipperMockedStatic.when((MockedStatic.Verification) FileZipper.zip(files)).thenReturn(new ByteArrayOutputStream(0));
         }
-        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
+        when(albumRepository.findById(ALBUM_ID)).thenReturn(Optional.of(album));
         albumService.downloadAsZip(ALBUM_ID);
 
-        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
+        verify(albumRepository).findById(ALBUM_ID);
     }
 
 }
