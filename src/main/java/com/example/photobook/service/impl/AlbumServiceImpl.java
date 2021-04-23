@@ -63,8 +63,15 @@ public class AlbumServiceImpl implements AlbumService {
                 .map(photo -> pathToFiles + "/" + photo.getPhotoName())
                 .collect(Collectors.toList());
         ByteArrayOutputStream zippedAlbum = FileZipper.zip(files);
+        return getFileFromOutputStream(album, zippedAlbum);
+    }
 
-        //write zipped album to File
+    @Override
+    public String findAlbumName(Long albumId) {
+        return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
+    }
+
+    private Optional<File> getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) {
         File file = null;
         try {
             file = File.createTempFile(album.getAlbumName(), ".zip");
@@ -77,10 +84,5 @@ public class AlbumServiceImpl implements AlbumService {
             e.printStackTrace();
         }
         return Optional.of(file);
-    }
-
-    @Override
-    public String findAlbumName(Long albumId) {
-        return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
     }
 }
