@@ -44,7 +44,7 @@ class AlbumControllerTest {
     @Test
     public void findAllAlbums_passes() throws Exception {
         MockHttpServletResponse response = mvc
-                .perform(MockMvcRequestBuilders.get("/api/albums"))
+                .perform(MockMvcRequestBuilders.get("/albums"))
                 .andReturn().getResponse();
 
         assertEquals(response.getStatus(), HttpStatus.OK.value());
@@ -53,7 +53,7 @@ class AlbumControllerTest {
     @Test
     public void deleteAlbum_passes() throws Exception {
         MockHttpServletResponse response = mvc
-                .perform(MockMvcRequestBuilders.delete("/api/albums/{id}", ALBUM_ID))
+                .perform(MockMvcRequestBuilders.delete("/albums/{id}", ALBUM_ID))
                 .andReturn().getResponse();
         assertEquals(response.getStatus(), HttpStatus.NO_CONTENT.value());
     }
@@ -65,7 +65,7 @@ class AlbumControllerTest {
 
         MockHttpServletResponse response = mvc
                 .perform(MockMvcRequestBuilders
-                        .post("/api/albums")
+                        .post("/albums")
                         .content(new ObjectMapper().writeValueAsString(albumDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -80,7 +80,7 @@ class AlbumControllerTest {
 
         MockHttpServletResponse response = mvc
                 .perform(MockMvcRequestBuilders
-                        .post("/api/albums")
+                        .post("/albums")
                         .content(new ObjectMapper().writeValueAsString(albumDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
