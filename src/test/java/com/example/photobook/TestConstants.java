@@ -11,4 +11,5 @@ public class TestConstants {
     public static final String PHOTO_CONTENT_TYPE = "image/jpeg";
     public static final String PHOTO_EXTENSION = ".jpeg";
     public static final String PATH_TO_FILES = ".";
+    public static final String PHOTO_LINK = "http://link.link";
 }

@@ -87,4 +87,22 @@ class PhotoServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> photoService.uploadPhotoFromComputer(uploadPhotoDto, file));
     }
 
+    @Test
+    public void uploadPhotoByUrl_passes() {
+        UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
+        uploadPhotoDto.setPhotoName(PHOTO_NAME);
+        Photo photo = new Photo();
+
+        when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
+        when(photoRepository.save(photo)).thenReturn(photo);
+        when(modelMapper.map(photo, PhotoDto.class)).thenReturn(new PhotoDto());
+
+        PhotoDto result = photoService.uploadPhotoByUrl(uploadPhotoDto);
+
+        verify(uploadPhotoDtoValidator).checkPhotoUploadingByUrl(uploadPhotoDto);
+        verify(uploadPhotoDtoMapper).toEntity(uploadPhotoDto);
+        verify(photoRepository).save(photo);
+        verify(modelMapper).map(photo, PhotoDto.class);
+    }
+
 }
