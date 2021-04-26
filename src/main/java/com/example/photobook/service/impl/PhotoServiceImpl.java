@@ -65,7 +65,10 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto) {
-        return null;
+        uploadPhotoDtoValidator.checkPhotoUploadingByUrl(uploadPhotoDto);
+        uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto));
+        Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));
+        return modelMapper.map(savedPhoto, PhotoDto.class);
     }
 
     private void savePhotoOnServer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException {
@@ -98,6 +101,11 @@ public class PhotoServiceImpl implements PhotoService {
     private String buildPhotoName(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
         return uploadPhotoDto.getPhotoName() + generatingRandomString() +
                 "." + FilenameUtils.getExtension(file.getOriginalFilename());
+    }
+
+    private String buildPhotoName(UploadPhotoDto uploadPhotoDto) {
+        return uploadPhotoDto.getPhotoName() + generatingRandomString() +
+                "." + FilenameUtils.getExtension(uploadPhotoDto.getLink());
     }
 
 }

@@ -12,4 +12,10 @@ public class UploadPhotoDtoValidator {
         }
     }
 
+    public void checkPhotoUploadingByUrl(UploadPhotoDto uploadPhotoDto) {
+        if (uploadPhotoDto.getLink() == null) {
+            throw new IllegalArgumentException("Link must not be null");
+        }
+    }
+
 }
