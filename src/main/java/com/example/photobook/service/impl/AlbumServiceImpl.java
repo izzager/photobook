@@ -13,7 +13,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,23 +49,34 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public void deleteAlbum(Long albumId) {
-        albumRepository
-                .findById(albumId)
-                .ifPresent(albumRepository::delete);
+        if (albumRepository.existsById(albumId)) {
+            albumRepository.deleteById(albumId);
+        }
     }
 
     @Override
-    public void downloadAsZip(Long albumId, ServletOutputStream servletOutputStream) {
-        Album album = albumRepositoryHelper.ensureAlbumExists(albumId);
+    public File downloadAsZip(Long albumId) throws IOException {
+        Album album = albumRepository
+                .findById(albumId)
+                .orElseThrow(() -> new IllegalArgumentException("Album not found"));
         List<String> files = album.getPhotos()
                 .stream()
-                .map(photo -> pathToFiles + photo.getPhotoName())
+                .map(photo -> pathToFiles + "/" + photo.getPhotoName())
                 .collect(Collectors.toList());
-        FileZipper.zip(files, servletOutputStream);
+        ByteArrayOutputStream zippedAlbum = FileZipper.zip(files);
+        return getFileFromOutputStream(album, zippedAlbum);
     }
 
     @Override
     public String findAlbumName(Long albumId) {
         return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
+    }
+
+    private File getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) throws IOException {
+        File file = File.createTempFile(album.getAlbumName(), ".zip");
+        try (OutputStream outputStream = new FileOutputStream(file)) {
+            zippedAlbum.writeTo(outputStream);
+        }
+        return file;
     }
 }

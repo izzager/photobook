@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -25,6 +26,18 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String handleResourceForbidden(final ResourceForbiddenException e) {
         return e.getMessage();
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public String handleIllegalArgumentException(final IllegalArgumentException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler({IOException.class})
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleIOException(final IOException e) {
+        return "An error occurred";
     }
 
     @Override
