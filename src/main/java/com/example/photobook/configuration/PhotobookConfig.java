@@ -1,7 +1,7 @@
 package com.example.photobook.configuration;
 
-import com.example.photobook.converterToDto.AlbumConverter;
-import com.example.photobook.converterToDto.PhotoConverter;
+import com.example.photobook.converterToDto.AlbumDtoConverter;
+import com.example.photobook.converterToDto.PhotoDtoConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,11 +10,11 @@ import org.springframework.context.annotation.Configuration;
 public class PhotobookConfig {
 
     @Bean
-    public ModelMapper defaultModelMapper(AlbumConverter albumConverter,
-                                          PhotoConverter photoConverter) {
+    public ModelMapper defaultModelMapper(AlbumDtoConverter albumDtoConverter,
+                                          PhotoDtoConverter photoDtoConverter) {
         var modelMapper = new ModelMapper();
-        modelMapper.addConverter(albumConverter);
-        modelMapper.addConverter(photoConverter);
+        modelMapper.addConverter(albumDtoConverter);
+        modelMapper.addConverter(photoDtoConverter);
         return modelMapper;
     }
 }

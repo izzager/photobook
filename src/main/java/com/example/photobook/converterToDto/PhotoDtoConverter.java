@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
-public class PhotoConverter implements Converter<Photo, PhotoDto> {
+public class PhotoDtoConverter implements Converter<Photo, PhotoDto> {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
