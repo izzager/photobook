@@ -10,10 +10,11 @@ import org.springframework.context.annotation.Configuration;
 public class PhotobookConfig {
 
     @Bean
-    public ModelMapper defaultModelMapper() {
+    public ModelMapper defaultModelMapper(AlbumConverter albumConverter,
+                                          PhotoConverter photoConverter) {
         var modelMapper = new ModelMapper();
-        modelMapper.addConverter(new AlbumConverter());
-        modelMapper.addConverter(new PhotoConverter());
+        modelMapper.addConverter(albumConverter);
+        modelMapper.addConverter(photoConverter);
         return modelMapper;
     }
 }

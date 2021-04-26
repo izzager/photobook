@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/albums")
+@RequestMapping("albums")
 public class AlbumController {
 
     private final AlbumService albumService;

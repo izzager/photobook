@@ -18,6 +18,9 @@ public class PhotoConverter implements Converter<Photo, PhotoDto> {
     @Value("${photobookapp.host-path}")
     private String hostPath;
 
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
     @Override
     public PhotoDto convert(MappingContext<Photo, PhotoDto> mappingContext) {
         Photo photo = mappingContext.getSource();
@@ -27,7 +30,8 @@ public class PhotoConverter implements Converter<Photo, PhotoDto> {
         }
         modelMapper.map(photo, photoDto);
         photoDto.setAlbumId(photo.getAlbum().getId());
-        photoDto.setLink(hostPath + photo.getPhotoName());
+        photoDto.setLink(hostPath + contextPath + "/albums/" + photo.getAlbum().getId() +
+                "/photos/" + photo.getId());
         return photoDto;
     }
 }
