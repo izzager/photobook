@@ -10,5 +10,5 @@ public class TestConstants {
     public static final String PHOTO_NAME = "photo";
     public static final String PHOTO_CONTENT_TYPE = "image/jpeg";
     public static final String PHOTO_EXTENSION = ".jpeg";
-    public static final String PATH_TO_FILES = "/Users/telesina/Desktop/assets";
+    public static final String PATH_TO_FILES = "/";
 }
