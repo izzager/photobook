@@ -8,7 +8,6 @@ import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.service.PhotoService;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +19,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
+
+import static com.example.photobook.util.PhotoUtils.buildPhotoName;
 
 @Service
 @RequiredArgsConstructor
@@ -84,28 +84,6 @@ public class PhotoServiceImpl implements PhotoService {
         if (!allowedContentTypes.contains(contentType)) {
             throw new IllegalArgumentException("This content type not allowed");
         }
-    }
-
-    private String generatingRandomString() {
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 30;
-        Random random = new Random();
-        return random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-    }
-
-    private String buildPhotoName(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
-        return uploadPhotoDto.getPhotoName() + generatingRandomString() +
-                "." + FilenameUtils.getExtension(file.getOriginalFilename());
-    }
-
-    private String buildPhotoName(UploadPhotoDto uploadPhotoDto) {
-        return uploadPhotoDto.getPhotoName() + generatingRandomString() +
-                "." + FilenameUtils.getExtension(uploadPhotoDto.getLink());
     }
 
 }

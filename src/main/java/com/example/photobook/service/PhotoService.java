@@ -1,7 +1,7 @@
 package com.example.photobook.service;
 
-import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.dto.PhotoDto;
+import com.example.photobook.dto.UploadPhotoDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
