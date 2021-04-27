@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -35,7 +34,7 @@ public class UploadingFilesConfig {
     private String pathToFiles;
 
     @Scheduled(fixedRateString = "${photobookapp.file-download-check-interval}")
-    public void downloadFilesFromUrl() {
+    public void downloadFilesFromUrl() throws IOException {
         List<Photo> notDownloadedFiles = downloadingStatusHelper.findNotDownloadedFiles();
         for (Photo photo : notDownloadedFiles) {
             Path path = Paths.get(pathToFiles + File.separator + photo.getPhotoName());
@@ -47,20 +46,12 @@ public class UploadingFilesConfig {
                     .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve()
                     .bodyToFlux(DataBuffer.class);
-            //TODO need fix because AsynchronousFileChannel doesn't work
-            //saveFileOnServer(path, dataBufferFlux);
-            DataBufferUtils.write(dataBufferFlux, path, StandardOpenOption.CREATE).block();
+            saveFileOnServer(path, dataBufferFlux);
         }
     }
 
     private void saveFileOnServer(Path path, Flux<DataBuffer> dataBufferFlux) throws IOException {
         AsynchronousFileChannel asynchronousFileChannel = AsynchronousFileChannel.open(path, CREATE, WRITE);
-        DataBufferUtils.write(dataBufferFlux, asynchronousFileChannel)
-                .doOnNext(DataBufferUtils.releaseConsumer())
-                .doAfterTerminate(() -> {
-                    try {
-                        asynchronousFileChannel.close();
-                    } catch (IOException ignored) { }
-                }).then();
+        DataBufferUtils.write(dataBufferFlux, asynchronousFileChannel).subscribe();
     }
 }
