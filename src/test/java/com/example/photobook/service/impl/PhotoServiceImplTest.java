@@ -20,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import static com.example.photobook.TestConstants.ALLOWED_CONTENT_TYPES;
+import static com.example.photobook.TestConstants.MILLISECONDS;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
 import static com.example.photobook.TestConstants.PHOTO_CONTENT_TYPE;
 import static com.example.photobook.TestConstants.PHOTO_EXTENSION;
@@ -103,6 +105,13 @@ class PhotoServiceImplTest {
         verify(uploadPhotoDtoMapper).toEntity(uploadPhotoDto);
         verify(photoRepository).save(photo);
         verify(modelMapper).map(photo, PhotoDto.class);
+    }
+
+    @Test
+    public void findLastPhotos_passes() {
+        List<Photo> result = photoService.findLastPhotos(MILLISECONDS);
+
+        verify(photoRepository).findAllByLoadDateAfter(Mockito.any());
     }
 
 }

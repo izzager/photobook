@@ -12,4 +12,5 @@ public class TestConstants {
     public static final String PHOTO_EXTENSION = ".jpeg";
     public static final String PATH_TO_FILES = ".";
     public static final String PHOTO_LINK = "http://link.link";
+    public static final Long MILLISECONDS = 1000L;
 }
