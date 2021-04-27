@@ -1,7 +1,7 @@
 package com.example.photobook.util;
 
 import com.example.photobook.entity.Photo;
-import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,10 +17,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DownloadingStatusHelper {
 
-    private final PhotoRepository photoRepository;
+    private final PhotoService photoService;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
+
+    @Value("${photobookapp.file-download-check-interval}")
+    private Long timeInterval;
 
     public Optional<File> ensureFileIsDownloaded(String fileName) {
         File file = new File(pathToFiles + File.separator + fileName);
@@ -38,9 +41,8 @@ public class DownloadingStatusHelper {
     }
 
     public List<Photo> findNotDownloadedFiles() {
-        //TODO find photos for last minute/hour
-        List<Photo> photos = photoRepository.findAll();
-        return photos.stream()
+        return photoService.findLastPhotos(timeInterval)
+                .stream()
                 .filter(photo -> !isFileDownloaded(photo.getPhotoName()))
                 .collect(Collectors.toList());
     }

@@ -18,6 +18,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
@@ -69,6 +70,12 @@ public class PhotoServiceImpl implements PhotoService {
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto));
         Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));
         return modelMapper.map(savedPhoto, PhotoDto.class);
+    }
+
+    @Override
+    public List<Photo> findLastPhotos(Long millis) {
+        LocalDateTime time = LocalDateTime.now().minusSeconds(millis * 2 / 1000);
+        return photoRepository.findAllByLoadDateAfter(time);
     }
 
     private void savePhotoOnServer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException {

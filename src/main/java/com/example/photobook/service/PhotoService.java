@@ -2,6 +2,7 @@ package com.example.photobook.service;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.entity.Photo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -13,4 +14,5 @@ public interface PhotoService {
     void findPhotoById(Long photoId);
     PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException;
     PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto);
+    List<Photo> findLastPhotos(Long millis);
 }
