@@ -2,7 +2,6 @@ package com.example.photobook.util;
 
 import com.example.photobook.entity.Photo;
 import com.example.photobook.service.PhotoService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,33 +13,29 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class DownloadingStatusHelper {
 
     private final PhotoService photoService;
+    private final String pathToFiles;
 
-    @Value("${photobookapp.downloading-directory}")
-    private String pathToFiles;
-
-    @Value("${photobookapp.file-download-check-interval}")
-    private Long timeInterval;
-
-    public Optional<File> ensureFileIsDownloaded(String fileName) {
-        File file = new File(pathToFiles + File.separator + fileName);
-        if (file.exists()) {
-            return Optional.of(file);
-        } else {
-            return Optional.empty();
-        }
+    public DownloadingStatusHelper(PhotoService photoService,
+                                   @Value("${photobookapp.downloading-directory}") String pathToFiles) {
+        this.photoService = photoService;
+        this.pathToFiles = pathToFiles;
     }
 
-    public List<Optional<File>> ensureFilesIsDownloaded(List<String> fileNames) {
+    public Optional<File> findLocalFileInstance(String fileName) {
+        File file = new File(pathToFiles + File.separator + fileName);
+        return Optional.of(file).filter(File::exists);
+    }
+
+    public List<Optional<File>> findLocalFileInstance(List<String> fileNames) {
         return fileNames.stream()
-                .map(this::ensureFileIsDownloaded)
+                .map(this::findLocalFileInstance)
                 .collect(Collectors.toList());
     }
 
-    public List<Photo> findNotDownloadedFiles() {
+    public List<Photo> findNotDownloadedFiles(Long timeInterval) {
         return photoService.findLastPhotos(timeInterval)
                 .stream()
                 .filter(photo -> !isFileDownloaded(photo.getPhotoName()))
@@ -48,7 +43,7 @@ public class DownloadingStatusHelper {
     }
 
     private boolean isFileDownloaded(String fileName) {
-        return Files.exists(Paths.get(pathToFiles + File.separator + fileName));
+        return Files.exists(Paths.get(pathToFiles, fileName));
     }
 
 }
