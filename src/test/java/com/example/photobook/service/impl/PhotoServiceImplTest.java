@@ -22,13 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.example.photobook.TestConstants.ALLOWED_CONTENT_TYPES;
 import static com.example.photobook.TestConstants.MILLISECONDS;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
-import static com.example.photobook.TestConstants.PHOTO_CONTENT_TYPE;
-import static com.example.photobook.TestConstants.PHOTO_EXTENSION;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,9 +56,6 @@ class PhotoServiceImplTest {
         MultipartFile file = Mockito.mock(MultipartFile.class);
         InputStream inputStream  = IOUtils.toInputStream("test data", "UTF-8");
 
-        when(file.getContentType()).thenReturn(PHOTO_CONTENT_TYPE);
-        when(file.getOriginalFilename()).thenReturn(PHOTO_EXTENSION);
-        ReflectionTestUtils.setField(photoService, "allowedContentTypes", ALLOWED_CONTENT_TYPES);
         ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
         when(file.getInputStream()).thenReturn(inputStream);
         when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
@@ -69,7 +64,7 @@ class PhotoServiceImplTest {
 
         PhotoDto result = photoService.uploadPhotoFromComputer(uploadPhotoDto, file);
 
-        verify(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto);
+        verify(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto, file);
         verify(uploadPhotoDtoMapper).toEntity(uploadPhotoDto);
         verify(photoRepository).save(photo);
         verify(modelMapper).map(photo, PhotoDto.class);
@@ -83,10 +78,11 @@ class PhotoServiceImplTest {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         MultipartFile file = Mockito.mock(MultipartFile.class);
 
-        when(file.getContentType()).thenReturn("ABC");
-        ReflectionTestUtils.setField(photoService, "allowedContentTypes", ALLOWED_CONTENT_TYPES);
+        doThrow(IllegalArgumentException.class)
+                .when(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto, file);
 
         assertThrows(IllegalArgumentException.class, () -> photoService.uploadPhotoFromComputer(uploadPhotoDto, file));
+        verify(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto, file);
     }
 
     @Test

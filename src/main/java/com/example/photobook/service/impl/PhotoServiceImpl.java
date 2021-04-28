@@ -35,9 +35,6 @@ public class PhotoServiceImpl implements PhotoService {
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
 
-    @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}")
-    private List<String> allowedContentTypes;
-
     @Override
     public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
         return null;
@@ -56,8 +53,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto,
                                             MultipartFile file) throws IOException {
-        checkIfContentTypeIsAllowed(file.getContentType());
-        uploadPhotoDtoValidator.checkPhotoUploadingFromComputer(uploadPhotoDto);
+        uploadPhotoDtoValidator.checkPhotoUploadingFromComputer(uploadPhotoDto, file);
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto, file));
         savePhotoOnServer(uploadPhotoDto, file);
         Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));
@@ -85,12 +81,6 @@ public class PhotoServiceImpl implements PhotoService {
         stream.write(bytes);
         stream.flush();
         stream.close();
-    }
-
-    private void checkIfContentTypeIsAllowed(String contentType) {
-        if (!allowedContentTypes.contains(contentType)) {
-            throw new IllegalArgumentException("This content type not allowed");
-        }
     }
 
 }

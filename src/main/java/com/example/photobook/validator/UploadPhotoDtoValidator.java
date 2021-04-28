@@ -1,20 +1,45 @@
 package com.example.photobook.validator;
 
 import com.example.photobook.dto.UploadPhotoDto;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Component
 public class UploadPhotoDtoValidator {
 
-    public void checkPhotoUploadingFromComputer(UploadPhotoDto uploadPhotoDto) {
+    @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}")
+    private List<String> allowedContentTypes;
+
+    public void checkPhotoUploadingFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
         if (uploadPhotoDto.getLink() != null) {
             throw new IllegalArgumentException("You upload photo from computer, not link");
         }
+        checkIfContentTypeIsAllowed(file.getContentType());
     }
 
     public void checkPhotoUploadingByUrl(UploadPhotoDto uploadPhotoDto) {
         if (uploadPhotoDto.getLink() == null) {
             throw new IllegalArgumentException("Link must not be null");
+        }
+        checkUrlIsValid(uploadPhotoDto.getLink());
+        checkIfContentTypeIsAllowed(FilenameUtils.getExtension(uploadPhotoDto.getLink()));
+    }
+
+    private void checkUrlIsValid(String link) {
+        UrlValidator urlValidator = new UrlValidator();
+        if (!urlValidator.isValid(link)) {
+            throw new IllegalArgumentException("Invalid link");
+        }
+    }
+
+    private void checkIfContentTypeIsAllowed(String contentType) {
+        if (!allowedContentTypes.contains(contentType)) {
+            throw new IllegalArgumentException("This content type not allowed");
         }
     }
 
