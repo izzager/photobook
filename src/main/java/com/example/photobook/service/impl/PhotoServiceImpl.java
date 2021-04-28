@@ -31,6 +31,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final ModelMapper modelMapper;
     private final UploadPhotoDtoMapper uploadPhotoDtoMapper;
     private final UploadPhotoDtoValidator uploadPhotoDtoValidator;
+    private final int CHECKING_TIME_MULTIPLIER = 2;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
@@ -70,7 +71,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public List<Photo> findLastPhotos(Long millis) {
-        LocalDateTime time = LocalDateTime.now().minusSeconds(millis * 2 / 1000);
+        LocalDateTime time = LocalDateTime.now().minusSeconds(millis * CHECKING_TIME_MULTIPLIER / 1000);
         return photoRepository.findAllByLoadDateAfter(time);
     }
 
