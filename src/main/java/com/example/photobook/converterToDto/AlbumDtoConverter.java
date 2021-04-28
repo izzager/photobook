@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
-public class AlbumConverter implements Converter<Album, AlbumDto> {
+public class AlbumDtoConverter implements Converter<Album, AlbumDto> {
 
     private final ModelMapper modelMapper = new ModelMapper();
 

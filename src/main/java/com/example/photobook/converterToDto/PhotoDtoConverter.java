@@ -11,12 +11,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
-public class PhotoConverter implements Converter<Photo, PhotoDto> {
+public class PhotoDtoConverter implements Converter<Photo, PhotoDto> {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Value("${photobookapp.host-path}")
     private String hostPath;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     @Override
     public PhotoDto convert(MappingContext<Photo, PhotoDto> mappingContext) {
@@ -27,7 +30,8 @@ public class PhotoConverter implements Converter<Photo, PhotoDto> {
         }
         modelMapper.map(photo, photoDto);
         photoDto.setAlbumId(photo.getAlbum().getId());
-        photoDto.setLink(hostPath + photo.getPhotoName());
+        photoDto.setLink(hostPath + contextPath + "/albums/" + photo.getAlbum().getId() +
+                "/photos/" + photo.getId());
         return photoDto;
     }
 }
