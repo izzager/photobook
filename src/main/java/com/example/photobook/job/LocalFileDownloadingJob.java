@@ -24,7 +24,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 @Configuration
 @EnableScheduling
-@Profile("!default")
+@Profile("!test")
 public class LocalFileDownloadingJob {
 
     private final DownloadingStatusHelper downloadingStatusHelper;
