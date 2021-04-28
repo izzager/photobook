@@ -3,13 +3,12 @@ package com.example.photobook.job;
 import com.example.photobook.entity.Photo;
 import com.example.photobook.util.DownloadingStatusHelper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
@@ -22,15 +21,14 @@ import java.util.List;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.WRITE;
 
-@Configuration
-@EnableScheduling
+@Component
 @Profile("!test")
 public class LocalFileDownloadingJob {
 
     private final DownloadingStatusHelper downloadingStatusHelper;
+    private final WebClient webClient;
     private final String pathToFiles;
     private final Long timeInterval;
-    private final WebClient webClient;
 
     public LocalFileDownloadingJob(DownloadingStatusHelper downloadingStatusHelper,
                                    WebClient webClient,

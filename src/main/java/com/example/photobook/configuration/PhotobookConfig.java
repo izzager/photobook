@@ -5,8 +5,10 @@ import com.example.photobook.converterToDto.PhotoDtoConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@EnableScheduling
 @Configuration
 public class PhotobookConfig {
 
@@ -23,4 +25,5 @@ public class PhotobookConfig {
     public WebClient webClient() {
         return WebClient.builder().build();
     }
+
 }
