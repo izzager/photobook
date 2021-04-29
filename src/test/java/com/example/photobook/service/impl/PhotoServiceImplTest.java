@@ -2,7 +2,9 @@ package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
@@ -20,11 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.MILLISECONDS;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -47,6 +52,9 @@ class PhotoServiceImplTest {
 
     @Mock
     private UploadPhotoDtoValidator uploadPhotoDtoValidator;
+
+    @Mock
+    private AlbumRepositoryHelper albumRepositoryHelper;
 
     @Test
     public void uploadPhotoFromComputer_passes() throws IOException {
@@ -108,6 +116,24 @@ class PhotoServiceImplTest {
         List<Photo> result = photoService.findLastPhotos(MILLISECONDS);
 
         verify(photoRepository).findAllByLoadDateAfter(Mockito.any());
+    }
+
+    @Test
+    public void findAllPhotosInAlbum_passes() {
+        List<Photo> photos = new ArrayList<>();
+        photos.add(new Photo());
+        Album album = new Album();
+        album.setId(ALBUM_ID);
+        album.setPhotos(photos);
+        PhotoDto photoDto = new PhotoDto();
+
+        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
+        when(modelMapper.map(photos.get(0), PhotoDto.class)).thenReturn(photoDto);
+        List<PhotoDto> result = photoService.findAllPhotosInAlbum(ALBUM_ID);
+
+        assertEquals(result.size(), photos.size());
+        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
+        verify(modelMapper).map(photos.get(0), PhotoDto.class);
     }
 
 }

@@ -11,7 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.json.JacksonTester;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,6 +70,15 @@ class PhotoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is(200));
+    }
+
+    @Test
+    public void findAllPhotosInAlbum_passes() throws Exception {
+        MockHttpServletResponse response = mvc
+                .perform(MockMvcRequestBuilders.get("/albums/{albumId}/photos", ALBUM_ID))
+                .andReturn().getResponse();
+
+        assertEquals(response.getStatus(), HttpStatus.OK.value());
     }
 
 }
