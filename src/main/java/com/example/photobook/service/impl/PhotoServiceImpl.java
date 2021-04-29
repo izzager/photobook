@@ -3,6 +3,7 @@ package com.example.photobook.service.impl;
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.service.PhotoService;
@@ -20,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
 
@@ -31,6 +33,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final ModelMapper modelMapper;
     private final UploadPhotoDtoMapper uploadPhotoDtoMapper;
     private final UploadPhotoDtoValidator uploadPhotoDtoValidator;
+    private final AlbumRepositoryHelper albumRepositoryHelper;
     private final int CHECKING_TIME_MULTIPLIER = 2;
 
     @Value("${photobookapp.downloading-directory}")
@@ -38,7 +41,11 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
-        return null;
+        return albumRepositoryHelper.ensureAlbumExists(albumId)
+                .getPhotos()
+                .stream()
+                .map(photo -> modelMapper.map(photo, PhotoDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override

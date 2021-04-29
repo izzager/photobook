@@ -5,6 +5,7 @@ import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +37,11 @@ public class PhotoController {
                                 @Validated @RequestBody UploadPhotoDto uploadPhotoDto) {
         uploadPhotoDto.setAlbumId(albumId);
         return photoService.uploadPhotoByUrl(uploadPhotoDto);
+    }
+
+    @GetMapping
+    public List<PhotoDto> findAllPhotosInAlbum(@PathVariable Long albumId) {
+        return photoService.findAllPhotosInAlbum(albumId);
     }
 
 }
