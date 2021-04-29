@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
@@ -60,8 +61,13 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public PhotoDto deletePhoto(Long photoId) {
-        return null;
+    public void deletePhoto(Long photoId) {
+        Optional<Photo> photoOptional = photoRepository.findById(photoId);
+        if (photoOptional.isPresent()) {
+            String pathToPhoto = pathToFiles + File.separator + photoOptional.get().getPhotoName();
+            photoRepository.deleteById(photoId);
+            new File(pathToPhoto).delete();
+        }
     }
 
     @Override

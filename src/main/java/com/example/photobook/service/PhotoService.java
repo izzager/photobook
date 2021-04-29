@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface PhotoService {
     List<PhotoDto> findAllPhotosInAlbum(Long albumId);
-    PhotoDto deletePhoto(Long photoId);
+    void deletePhoto(Long photoId);
     void findPhotoById(Long photoId);
     PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException;
     PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto);
