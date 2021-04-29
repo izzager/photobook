@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -57,6 +58,8 @@ public class LocalFileDownloadingJob {
 
     private void saveFileOnServer(Path path, Flux<DataBuffer> dataBufferFlux) throws IOException {
         AsynchronousFileChannel asynchronousFileChannel = AsynchronousFileChannel.open(path, CREATE, WRITE);
-        DataBufferUtils.write(dataBufferFlux, asynchronousFileChannel).subscribe();
+        DataBufferUtils.write(dataBufferFlux, asynchronousFileChannel)
+                .timeout(Duration.ofSeconds(10))
+                .subscribe();
     }
 }
