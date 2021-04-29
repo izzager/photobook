@@ -5,8 +5,11 @@ import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
 import com.example.photobook.helper.AlbumRepositoryHelper;
+import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.util.DownloadingStatusHelper;
+import com.example.photobook.util.LoadingPhotoByURLHelper;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +33,7 @@ import java.util.Optional;
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
 import static com.example.photobook.TestConstants.PHOTO_ID;
+import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -56,6 +61,15 @@ class PhotoServiceImplTest {
 
     @Mock
     private AlbumRepositoryHelper albumRepositoryHelper;
+
+    @Mock
+    private PhotoRepositoryHelper photoRepositoryHelper;
+
+    @Mock
+    private DownloadingStatusHelper downloadingStatusHelper;
+
+    @Mock
+    private LoadingPhotoByURLHelper loadingPhotoByURLHelper;
 
     @Test
     public void uploadPhotoFromComputer_passes() throws IOException {
@@ -139,6 +153,45 @@ class PhotoServiceImplTest {
 
         verify(photoRepository).findById(PHOTO_ID);
         verify(photoRepository).deleteById(PHOTO_ID);
+    }
+
+    @Test
+    public void findPhotoById_photoIsOnServer_passes() throws IOException {
+        Photo photo = new Photo();
+        photo.setId(PHOTO_ID);
+        photo.setAlbum(new Album());
+        photo.getAlbum().setId(ALBUM_ID);
+        photo.setPhotoName(PHOTO_NAME);
+        File file = Mockito.mock(File.class);
+
+        when(photoRepositoryHelper.ensurePhotoExists(PHOTO_ID, ALBUM_ID)).thenReturn(photo);
+        when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
+                .thenReturn(Optional.ofNullable(file));
+        File result = photoService.findPhotoById(PHOTO_ID, ALBUM_ID);
+
+        assertEquals(file, result);
+        verify(photoRepositoryHelper).ensurePhotoExists(PHOTO_ID, ALBUM_ID);
+        verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
+    }
+
+    @Test
+    public void findPhotoById_photoIsNotOnServer_passes() throws IOException {
+        Photo photo = new Photo();
+        photo.setId(PHOTO_ID);
+        photo.setAlbum(new Album());
+        photo.getAlbum().setId(ALBUM_ID);
+        photo.setPhotoName(PHOTO_NAME);
+        photo.setLoadSource(PHOTO_LINK);
+
+        ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
+        when(photoRepositoryHelper.ensurePhotoExists(PHOTO_ID, ALBUM_ID)).thenReturn(photo);
+        when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
+                .thenReturn(Optional.empty());
+        File result = photoService.findPhotoById(PHOTO_ID, ALBUM_ID);
+
+        verify(photoRepositoryHelper).ensurePhotoExists(PHOTO_ID, ALBUM_ID);
+        verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
+        verify(loadingPhotoByURLHelper).downloadPhotoFromUrl(PHOTO_LINK, Paths.get(PATH_TO_FILES, PHOTO_NAME));
     }
 
 }
