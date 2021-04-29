@@ -8,7 +8,6 @@ import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.service.PhotoService;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,18 +25,30 @@ import java.util.stream.Collectors;
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
 
 @Service
-@RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
+
+    private final int CHECKING_TIME_MULTIPLIER = 2;
 
     private final PhotoRepository photoRepository;
     private final ModelMapper modelMapper;
     private final UploadPhotoDtoMapper uploadPhotoDtoMapper;
     private final UploadPhotoDtoValidator uploadPhotoDtoValidator;
     private final AlbumRepositoryHelper albumRepositoryHelper;
-    private final int CHECKING_TIME_MULTIPLIER = 2;
+    private final String pathToFiles;
 
-    @Value("${photobookapp.downloading-directory}")
-    private String pathToFiles;
+    public PhotoServiceImpl(PhotoRepository photoRepository,
+                            ModelMapper modelMapper,
+                            UploadPhotoDtoMapper uploadPhotoDtoMapper,
+                            UploadPhotoDtoValidator uploadPhotoDtoValidator,
+                            AlbumRepositoryHelper albumRepositoryHelper,
+                            @Value("${photobookapp.downloading-directory}") String pathToFiles) {
+        this.photoRepository = photoRepository;
+        this.modelMapper = modelMapper;
+        this.uploadPhotoDtoMapper = uploadPhotoDtoMapper;
+        this.uploadPhotoDtoValidator = uploadPhotoDtoValidator;
+        this.albumRepositoryHelper = albumRepositoryHelper;
+        this.pathToFiles = pathToFiles;
+    }
 
     @Override
     public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
