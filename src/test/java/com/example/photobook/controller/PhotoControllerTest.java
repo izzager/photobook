@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
+import static com.example.photobook.TestConstants.PHOTO_ID;
 import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,6 +80,15 @@ class PhotoControllerTest {
                 .andReturn().getResponse();
 
         assertEquals(response.getStatus(), HttpStatus.OK.value());
+    }
+
+    @Test
+    public void deletePhoto_passes() throws Exception {
+        MockHttpServletResponse response = mvc
+                .perform(MockMvcRequestBuilders
+                        .delete("/albums/{albumId}/photos/{id}", ALBUM_ID, PHOTO_ID))
+                .andReturn().getResponse();
+        assertEquals(response.getStatus(), HttpStatus.NO_CONTENT.value());
     }
 
 }

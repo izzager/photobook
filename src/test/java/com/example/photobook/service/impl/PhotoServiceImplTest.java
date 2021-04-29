@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.MILLISECONDS;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
+import static com.example.photobook.TestConstants.PHOTO_ID;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -134,6 +136,17 @@ class PhotoServiceImplTest {
         assertEquals(result.size(), photos.size());
         verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
         verify(modelMapper).map(photos.get(0), PhotoDto.class);
+    }
+
+    @Test
+    public void deletePhoto_passes() {
+        Photo photo = new Photo();
+
+        when(photoRepository.findById(PHOTO_ID)).thenReturn(Optional.of(photo));
+        photoService.deletePhoto(PHOTO_ID);
+
+        verify(photoRepository).findById(PHOTO_ID);
+        verify(photoRepository).deleteById(PHOTO_ID);
     }
 
 }
