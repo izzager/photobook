@@ -4,7 +4,9 @@ import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,6 +55,16 @@ public class PhotoController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deletePhoto(@PathVariable Long id) {
         photoService.deletePhoto(id);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<byte[]> downloadPhoto(@PathVariable Long id,
+                                                @PathVariable Long albumId,
+                                                HttpServletResponse response) throws IOException {
+        File file = photoService.findPhotoById(id, albumId);
+        response.addHeader("Content-Disposition",
+                "attachment; filename=" + file.getName());
+        return new ResponseEntity<>(FileUtils.readFileToByteArray(file), HttpStatus.OK);
     }
 
 }

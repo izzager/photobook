@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
-import static com.example.photobook.TestConstants.MILLISECONDS;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
 import static com.example.photobook.TestConstants.PHOTO_ID;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
@@ -111,13 +110,6 @@ class PhotoServiceImplTest {
         verify(uploadPhotoDtoMapper).toEntity(uploadPhotoDto);
         verify(photoRepository).save(photo);
         verify(modelMapper).map(photo, PhotoDto.class);
-    }
-
-    @Test
-    public void findLastPhotos_passes() {
-        List<Photo> result = photoService.findLastPhotos(MILLISECONDS);
-
-        verify(photoRepository).findAllByLoadDateAfter(Mockito.any());
     }
 
     @Test
