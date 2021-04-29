@@ -56,7 +56,7 @@ public class AlbumServiceImplTest {
         Mockito.when(albumRepository.findAll()).thenReturn(albums);
         List<AlbumDto> result = albumService.findAllAlbums();
 
-        assertEquals(result.size(), albums.size());
+        assertEquals(albums.size(), result.size());
         verify(albumRepository).findAll();
     }
 

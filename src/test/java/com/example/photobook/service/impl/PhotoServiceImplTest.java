@@ -139,7 +139,7 @@ class PhotoServiceImplTest {
         when(modelMapper.map(photos.get(0), PhotoDto.class)).thenReturn(photoDto);
         List<PhotoDto> result = photoService.findAllPhotosInAlbum(ALBUM_ID);
 
-        assertEquals(result.size(), photos.size());
+        assertEquals(photos.size(), result.size());
         verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
         verify(modelMapper).map(photos.get(0), PhotoDto.class);
     }
