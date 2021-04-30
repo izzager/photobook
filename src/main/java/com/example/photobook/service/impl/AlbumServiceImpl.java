@@ -2,6 +2,7 @@ package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.AlbumDto;
 import com.example.photobook.dto.CreateAlbumDto;
+import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
@@ -72,6 +73,15 @@ public class AlbumServiceImpl implements AlbumService {
         return albumRepositoryHelper.ensureAlbumExists(albumId).getAlbumName();
     }
 
+    @Override
+    public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
+        return albumRepositoryHelper.ensureAlbumExists(albumId)
+                .getPhotos()
+                .stream()
+                .map(photo -> modelMapper.map(photo, PhotoDto.class))
+                .collect(Collectors.toList());
+    }
+
     private File getFileFromOutputStream(Album album, ByteArrayOutputStream zippedAlbum) throws IOException {
         File file = File.createTempFile(album.getAlbumName(), ".zip");
         try (OutputStream outputStream = new FileOutputStream(file)) {
@@ -79,4 +89,5 @@ public class AlbumServiceImpl implements AlbumService {
         }
         return file;
     }
+
 }

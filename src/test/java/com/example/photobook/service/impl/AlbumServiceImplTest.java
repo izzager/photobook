@@ -2,6 +2,7 @@ package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.AlbumDto;
 import com.example.photobook.dto.CreateAlbumDto;
+import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
 import com.example.photobook.helper.AlbumRepositoryHelper;
@@ -105,6 +106,24 @@ public class AlbumServiceImplTest {
         albumService.downloadAsZip(ALBUM_ID);
 
         verify(albumRepository).findById(ALBUM_ID);
+    }
+
+    @Test
+    public void findAllPhotosInAlbum_passes() {
+        List<Photo> photos = new ArrayList<>();
+        photos.add(new Photo());
+        Album album = new Album();
+        album.setId(ALBUM_ID);
+        album.setPhotos(photos);
+        PhotoDto photoDto = new PhotoDto();
+
+        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
+        when(modelMapper.map(photos.get(0), PhotoDto.class)).thenReturn(photoDto);
+        List<PhotoDto> result = albumService.findAllPhotosInAlbum(ALBUM_ID);
+
+        assertEquals(photos.size(), result.size());
+        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
+        verify(modelMapper).map(photos.get(0), PhotoDto.class);
     }
 
 }

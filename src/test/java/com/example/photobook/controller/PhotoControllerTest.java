@@ -2,6 +2,7 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.exception.ControllerExceptionHandler;
+import com.example.photobook.service.AlbumService;
 import com.example.photobook.service.PhotoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -42,6 +43,9 @@ class PhotoControllerTest {
 
     @Mock
     private PhotoService photoService;
+
+    @Mock
+    private AlbumService albumService;
 
     @BeforeEach
     public void setup() {

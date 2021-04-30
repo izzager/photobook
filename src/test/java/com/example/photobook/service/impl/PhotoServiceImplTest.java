@@ -4,7 +4,6 @@ import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
-import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
@@ -26,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
@@ -58,9 +55,6 @@ class PhotoServiceImplTest {
 
     @Mock
     private UploadPhotoDtoValidator uploadPhotoDtoValidator;
-
-    @Mock
-    private AlbumRepositoryHelper albumRepositoryHelper;
 
     @Mock
     private PhotoRepositoryHelper photoRepositoryHelper;
@@ -124,24 +118,6 @@ class PhotoServiceImplTest {
         verify(uploadPhotoDtoMapper).toEntity(uploadPhotoDto);
         verify(photoRepository).save(photo);
         verify(modelMapper).map(photo, PhotoDto.class);
-    }
-
-    @Test
-    public void findAllPhotosInAlbum_passes() {
-        List<Photo> photos = new ArrayList<>();
-        photos.add(new Photo());
-        Album album = new Album();
-        album.setId(ALBUM_ID);
-        album.setPhotos(photos);
-        PhotoDto photoDto = new PhotoDto();
-
-        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
-        when(modelMapper.map(photos.get(0), PhotoDto.class)).thenReturn(photoDto);
-        List<PhotoDto> result = photoService.findAllPhotosInAlbum(ALBUM_ID);
-
-        assertEquals(photos.size(), result.size());
-        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
-        verify(modelMapper).map(photos.get(0), PhotoDto.class);
     }
 
     @Test

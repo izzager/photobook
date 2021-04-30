@@ -3,7 +3,6 @@ package com.example.photobook.service.impl;
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Photo;
-import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
@@ -22,9 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
 
@@ -35,7 +32,6 @@ public class PhotoServiceImpl implements PhotoService {
     private final ModelMapper modelMapper;
     private final UploadPhotoDtoMapper uploadPhotoDtoMapper;
     private final UploadPhotoDtoValidator uploadPhotoDtoValidator;
-    private final AlbumRepositoryHelper albumRepositoryHelper;
     private final PhotoRepositoryHelper photoRepositoryHelper;
     private final DownloadingStatusHelper downloadingStatusHelper;
     private final LoadingPhotoByURLHelper loadingPhotoByURLHelper;
@@ -45,7 +41,6 @@ public class PhotoServiceImpl implements PhotoService {
                             ModelMapper modelMapper,
                             UploadPhotoDtoMapper uploadPhotoDtoMapper,
                             UploadPhotoDtoValidator uploadPhotoDtoValidator,
-                            AlbumRepositoryHelper albumRepositoryHelper,
                             PhotoRepositoryHelper photoRepositoryHelper,
                             DownloadingStatusHelper downloadingStatusHelper,
                             LoadingPhotoByURLHelper loadingPhotoByURLHelper,
@@ -54,20 +49,10 @@ public class PhotoServiceImpl implements PhotoService {
         this.modelMapper = modelMapper;
         this.uploadPhotoDtoMapper = uploadPhotoDtoMapper;
         this.uploadPhotoDtoValidator = uploadPhotoDtoValidator;
-        this.albumRepositoryHelper = albumRepositoryHelper;
         this.photoRepositoryHelper = photoRepositoryHelper;
         this.downloadingStatusHelper = downloadingStatusHelper;
         this.loadingPhotoByURLHelper = loadingPhotoByURLHelper;
         this.pathToFiles = pathToFiles;
-    }
-
-    @Override
-    public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
-        return albumRepositoryHelper.ensureAlbumExists(albumId)
-                .getPhotos()
-                .stream()
-                .map(photo -> modelMapper.map(photo, PhotoDto.class))
-                .collect(Collectors.toList());
     }
 
     @Override

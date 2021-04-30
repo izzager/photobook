@@ -2,6 +2,7 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.service.AlbumService;
 import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
@@ -30,6 +31,7 @@ import java.util.List;
 public class PhotoController {
 
     private final PhotoService photoService;
+    private final AlbumService albumService;
 
     @PostMapping("uploadFromComputer")
     public PhotoDto uploadFromComputer(@PathVariable Long albumId,
@@ -48,7 +50,7 @@ public class PhotoController {
 
     @GetMapping
     public List<PhotoDto> findAllPhotosInAlbum(@PathVariable Long albumId) {
-        return photoService.findAllPhotosInAlbum(albumId);
+        return albumService.findAllPhotosInAlbum(albumId);
     }
 
     @DeleteMapping("{id}")
