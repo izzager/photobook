@@ -2,11 +2,13 @@ package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.AlbumDto;
 import com.example.photobook.dto.CreateAlbumDto;
+import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
 import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
+import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.util.FileZipper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,7 @@ import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.ALBUM_NAME;
+import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +51,9 @@ public class AlbumServiceImplTest {
     @Mock
     private CreateAlbumDtoMapper createAlbumDtoMapper;
 
+    @Mock
+    private PhotoRepository photoRepository;
+
     @Test
     public void findAllAlbums_passes() {
         List<Album> albums = new ArrayList<>();
@@ -56,7 +62,7 @@ public class AlbumServiceImplTest {
         Mockito.when(albumRepository.findAll()).thenReturn(albums);
         List<AlbumDto> result = albumService.findAllAlbums();
 
-        assertEquals(result.size(), albums.size());
+        assertEquals(albums.size(), result.size());
         verify(albumRepository).findAll();
     }
 
@@ -76,10 +82,18 @@ public class AlbumServiceImplTest {
 
     @Test
     public void deleteAlbum_albumExists_passes() {
+        List<Photo> photos = new ArrayList<>();
+        Photo photo = new Photo();
+        photo.setPhotoName(PHOTO_NAME);
+        photos.add(photo);
+
         when(albumRepository.existsById(ALBUM_ID)).thenReturn(true);
+        when(photoRepository.findAllByAlbumId(ALBUM_ID)).thenReturn(photos);
         albumService.deleteAlbum(ALBUM_ID);
 
         verify(albumRepository).existsById(ALBUM_ID);
+        verify(photoRepository).findAllByAlbumId(ALBUM_ID);
+        verify(photoRepository).delete(photo);
         verify(albumRepository).deleteById(ALBUM_ID);
     }
 
@@ -105,6 +119,24 @@ public class AlbumServiceImplTest {
         albumService.downloadAsZip(ALBUM_ID);
 
         verify(albumRepository).findById(ALBUM_ID);
+    }
+
+    @Test
+    public void findAllPhotosInAlbum_passes() {
+        List<Photo> photos = new ArrayList<>();
+        photos.add(new Photo());
+        Album album = new Album();
+        album.setId(ALBUM_ID);
+        album.setPhotos(photos);
+        PhotoDto photoDto = new PhotoDto();
+
+        when(albumRepositoryHelper.ensureAlbumExists(ALBUM_ID)).thenReturn(album);
+        when(modelMapper.map(photos.get(0), PhotoDto.class)).thenReturn(photoDto);
+        List<PhotoDto> result = albumService.findAllPhotosInAlbum(ALBUM_ID);
+
+        assertEquals(photos.size(), result.size());
+        verify(albumRepositoryHelper).ensureAlbumExists(ALBUM_ID);
+        verify(modelMapper).map(photos.get(0), PhotoDto.class);
     }
 
 }

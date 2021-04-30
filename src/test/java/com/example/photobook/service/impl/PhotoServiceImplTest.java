@@ -2,9 +2,13 @@ package com.example.photobook.service.impl;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.util.DownloadingStatusHelper;
+import com.example.photobook.util.LoadingPhotoByURLHelper;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -20,11 +24,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.Optional;
 
-import static com.example.photobook.TestConstants.MILLISECONDS;
+import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.PATH_TO_FILES;
+import static com.example.photobook.TestConstants.PHOTO_ID;
+import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -47,6 +55,15 @@ class PhotoServiceImplTest {
 
     @Mock
     private UploadPhotoDtoValidator uploadPhotoDtoValidator;
+
+    @Mock
+    private PhotoRepositoryHelper photoRepositoryHelper;
+
+    @Mock
+    private DownloadingStatusHelper downloadingStatusHelper;
+
+    @Mock
+    private LoadingPhotoByURLHelper loadingPhotoByURLHelper;
 
     @Test
     public void uploadPhotoFromComputer_passes() throws IOException {
@@ -104,10 +121,53 @@ class PhotoServiceImplTest {
     }
 
     @Test
-    public void findLastPhotos_passes() {
-        List<Photo> result = photoService.findLastPhotos(MILLISECONDS);
+    public void deletePhoto_passes() {
+        Photo photo = new Photo();
 
-        verify(photoRepository).findAllByLoadDateAfter(Mockito.any());
+        when(photoRepository.findById(PHOTO_ID)).thenReturn(Optional.of(photo));
+        photoService.deletePhoto(PHOTO_ID);
+
+        verify(photoRepository).findById(PHOTO_ID);
+        verify(photoRepository).deleteById(PHOTO_ID);
+    }
+
+    @Test
+    public void findPhotoById_photoIsOnServer_passes() throws IOException {
+        Photo photo = new Photo();
+        photo.setId(PHOTO_ID);
+        photo.setAlbum(new Album());
+        photo.getAlbum().setId(ALBUM_ID);
+        photo.setPhotoName(PHOTO_NAME);
+        File file = Mockito.mock(File.class);
+
+        when(photoRepositoryHelper.ensurePhotoExists(ALBUM_ID, PHOTO_ID)).thenReturn(photo);
+        when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
+                .thenReturn(Optional.ofNullable(file));
+        File result = photoService.findPhotoById(ALBUM_ID, PHOTO_ID);
+
+        assertEquals(file, result);
+        verify(photoRepositoryHelper).ensurePhotoExists(ALBUM_ID, PHOTO_ID);
+        verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
+    }
+
+    @Test
+    public void findPhotoById_photoIsNotOnServer_passes() throws IOException {
+        Photo photo = new Photo();
+        photo.setId(PHOTO_ID);
+        photo.setAlbum(new Album());
+        photo.getAlbum().setId(ALBUM_ID);
+        photo.setPhotoName(PHOTO_NAME);
+        photo.setLoadSource(PHOTO_LINK);
+
+        ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
+        when(photoRepositoryHelper.ensurePhotoExists(ALBUM_ID, PHOTO_ID)).thenReturn(photo);
+        when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
+                .thenReturn(Optional.empty());
+        File result = photoService.findPhotoById(ALBUM_ID, PHOTO_ID);
+
+        verify(photoRepositoryHelper).ensurePhotoExists(ALBUM_ID, PHOTO_ID);
+        verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
+        verify(loadingPhotoByURLHelper).downloadPhotoFromUrl(PHOTO_LINK, Paths.get(PATH_TO_FILES, PHOTO_NAME));
     }
 
 }

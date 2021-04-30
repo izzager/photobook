@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 
 @RestControllerAdvice
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
@@ -38,6 +39,12 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleIOException(final IOException e) {
         return "An error occurred";
+    }
+
+    @ExceptionHandler({TimeoutException.class})
+    @ResponseStatus(value = HttpStatus.GATEWAY_TIMEOUT)
+    public String handleTimeoutException(final TimeoutException e) {
+        return "Time is out";
     }
 
     @Override

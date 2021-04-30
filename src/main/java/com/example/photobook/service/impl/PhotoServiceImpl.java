@@ -3,11 +3,13 @@ package com.example.photobook.service.impl;
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.service.PhotoService;
+import com.example.photobook.util.DownloadingStatusHelper;
+import com.example.photobook.util.LoadingPhotoByURLHelper;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,37 +20,61 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.nio.file.Paths;
+import java.util.Optional;
 
 import static com.example.photobook.util.PhotoUtils.buildPhotoName;
 
 @Service
-@RequiredArgsConstructor
 public class PhotoServiceImpl implements PhotoService {
 
     private final PhotoRepository photoRepository;
     private final ModelMapper modelMapper;
     private final UploadPhotoDtoMapper uploadPhotoDtoMapper;
     private final UploadPhotoDtoValidator uploadPhotoDtoValidator;
-    private final int CHECKING_TIME_MULTIPLIER = 2;
+    private final PhotoRepositoryHelper photoRepositoryHelper;
+    private final DownloadingStatusHelper downloadingStatusHelper;
+    private final LoadingPhotoByURLHelper loadingPhotoByURLHelper;
+    private final String pathToFiles;
 
-    @Value("${photobookapp.downloading-directory}")
-    private String pathToFiles;
-
-    @Override
-    public List<PhotoDto> findAllPhotosInAlbum(Long albumId) {
-        return null;
+    public PhotoServiceImpl(PhotoRepository photoRepository,
+                            ModelMapper modelMapper,
+                            UploadPhotoDtoMapper uploadPhotoDtoMapper,
+                            UploadPhotoDtoValidator uploadPhotoDtoValidator,
+                            PhotoRepositoryHelper photoRepositoryHelper,
+                            DownloadingStatusHelper downloadingStatusHelper,
+                            LoadingPhotoByURLHelper loadingPhotoByURLHelper,
+                            @Value("${photobookapp.downloading-directory}") String pathToFiles) {
+        this.photoRepository = photoRepository;
+        this.modelMapper = modelMapper;
+        this.uploadPhotoDtoMapper = uploadPhotoDtoMapper;
+        this.uploadPhotoDtoValidator = uploadPhotoDtoValidator;
+        this.photoRepositoryHelper = photoRepositoryHelper;
+        this.downloadingStatusHelper = downloadingStatusHelper;
+        this.loadingPhotoByURLHelper = loadingPhotoByURLHelper;
+        this.pathToFiles = pathToFiles;
     }
 
     @Override
-    public PhotoDto deletePhoto(Long photoId) {
-        return null;
+    public void deletePhoto(Long photoId) {
+        Optional<Photo> photoOptional = photoRepository.findById(photoId);
+        if (photoOptional.isPresent()) {
+            String pathToPhoto = pathToFiles + File.separator + photoOptional.get().getPhotoName();
+            photoRepository.deleteById(photoId);
+            new File(pathToPhoto).delete();
+        }
     }
 
     @Override
-    public void findPhotoById(Long photoId) {
-
+    public File findPhotoById(Long albumId, Long photoId) throws IOException {
+        Photo photo = photoRepositoryHelper.ensurePhotoExists(albumId, photoId);
+        Optional<File> file = downloadingStatusHelper.findLocalFileInstance(photo.getPhotoName());
+        if (file.isPresent()) {
+            return file.get();
+        } else {
+            return loadingPhotoByURLHelper
+                        .downloadPhotoFromUrl(photo.getLoadSource(), Paths.get(pathToFiles, photo.getPhotoName()));
+        }
     }
 
     @Override
@@ -67,12 +93,6 @@ public class PhotoServiceImpl implements PhotoService {
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto));
         Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));
         return modelMapper.map(savedPhoto, PhotoDto.class);
-    }
-
-    @Override
-    public List<Photo> findLastPhotos(Long millis) {
-        LocalDateTime time = LocalDateTime.now().minusSeconds(millis * CHECKING_TIME_MULTIPLIER / 1000);
-        return photoRepository.findAllByLoadDateAfter(time);
     }
 
     private void savePhotoOnServer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException {

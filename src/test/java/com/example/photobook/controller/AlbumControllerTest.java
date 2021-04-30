@@ -47,7 +47,7 @@ class AlbumControllerTest {
                 .perform(MockMvcRequestBuilders.get("/albums"))
                 .andReturn().getResponse();
 
-        assertEquals(response.getStatus(), HttpStatus.OK.value());
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
     @Test
@@ -55,7 +55,7 @@ class AlbumControllerTest {
         MockHttpServletResponse response = mvc
                 .perform(MockMvcRequestBuilders.delete("/albums/{id}", ALBUM_ID))
                 .andReturn().getResponse();
-        assertEquals(response.getStatus(), HttpStatus.NO_CONTENT.value());
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
 
     @Test
@@ -71,7 +71,7 @@ class AlbumControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
-        assertEquals(response.getStatus(), HttpStatus.OK.value());
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
     @Test
@@ -86,7 +86,7 @@ class AlbumControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
-        assertEquals(response.getStatus(), HttpStatus.BAD_REQUEST.value());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
     }
 
 }
