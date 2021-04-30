@@ -63,7 +63,7 @@ public class PhotoController {
     public ResponseEntity<byte[]> downloadPhoto(@PathVariable Long id,
                                                 @PathVariable Long albumId,
                                                 HttpServletResponse response) throws IOException {
-        File file = photoService.findPhotoById(id, albumId);
+        File file = photoService.findPhotoById(albumId, id);
         response.addHeader("Content-Disposition",
                 "attachment; filename=" + file.getName());
         return new ResponseEntity<>(FileUtils.readFileToByteArray(file), HttpStatus.OK);

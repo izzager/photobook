@@ -104,7 +104,7 @@ class PhotoControllerTest {
     @Test
     public void downloadPhoto_passes() throws Exception {
         File file = Mockito.mock(File.class);
-        when(photoService.findPhotoById(PHOTO_ID, ALBUM_ID)).thenReturn(file);
+        when(photoService.findPhotoById(ALBUM_ID, PHOTO_ID)).thenReturn(file);
         when(file.getName()).thenReturn(PHOTO_NAME);
         byte[] bytes = new byte[1];
         try (MockedStatic<FileUtils> fileUtilsMockedStatic = Mockito.mockStatic(FileUtils.class)) {

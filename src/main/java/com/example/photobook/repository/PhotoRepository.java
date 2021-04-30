@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findAllByLoadDateAfter(LocalDateTime dateTime);
+    List<Photo> findAllByAlbumId(Long albumId);
 }

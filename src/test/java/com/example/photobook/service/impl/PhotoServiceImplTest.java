@@ -140,13 +140,13 @@ class PhotoServiceImplTest {
         photo.setPhotoName(PHOTO_NAME);
         File file = Mockito.mock(File.class);
 
-        when(photoRepositoryHelper.ensurePhotoExists(PHOTO_ID, ALBUM_ID)).thenReturn(photo);
+        when(photoRepositoryHelper.ensurePhotoExists(ALBUM_ID, PHOTO_ID)).thenReturn(photo);
         when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
                 .thenReturn(Optional.ofNullable(file));
-        File result = photoService.findPhotoById(PHOTO_ID, ALBUM_ID);
+        File result = photoService.findPhotoById(ALBUM_ID, PHOTO_ID);
 
         assertEquals(file, result);
-        verify(photoRepositoryHelper).ensurePhotoExists(PHOTO_ID, ALBUM_ID);
+        verify(photoRepositoryHelper).ensurePhotoExists(ALBUM_ID, PHOTO_ID);
         verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
     }
 
@@ -160,12 +160,12 @@ class PhotoServiceImplTest {
         photo.setLoadSource(PHOTO_LINK);
 
         ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
-        when(photoRepositoryHelper.ensurePhotoExists(PHOTO_ID, ALBUM_ID)).thenReturn(photo);
+        when(photoRepositoryHelper.ensurePhotoExists(ALBUM_ID, PHOTO_ID)).thenReturn(photo);
         when(downloadingStatusHelper.findLocalFileInstance(PHOTO_NAME))
                 .thenReturn(Optional.empty());
-        File result = photoService.findPhotoById(PHOTO_ID, ALBUM_ID);
+        File result = photoService.findPhotoById(ALBUM_ID, PHOTO_ID);
 
-        verify(photoRepositoryHelper).ensurePhotoExists(PHOTO_ID, ALBUM_ID);
+        verify(photoRepositoryHelper).ensurePhotoExists(ALBUM_ID, PHOTO_ID);
         verify(downloadingStatusHelper).findLocalFileInstance(PHOTO_NAME);
         verify(loadingPhotoByURLHelper).downloadPhotoFromUrl(PHOTO_LINK, Paths.get(PATH_TO_FILES, PHOTO_NAME));
     }

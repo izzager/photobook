@@ -8,6 +8,7 @@ import com.example.photobook.entity.Photo;
 import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
+import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.util.FileZipper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,7 @@ import java.util.Optional;
 
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.ALBUM_NAME;
+import static com.example.photobook.TestConstants.PHOTO_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,9 @@ public class AlbumServiceImplTest {
 
     @Mock
     private CreateAlbumDtoMapper createAlbumDtoMapper;
+
+    @Mock
+    private PhotoRepository photoRepository;
 
     @Test
     public void findAllAlbums_passes() {
@@ -77,10 +82,18 @@ public class AlbumServiceImplTest {
 
     @Test
     public void deleteAlbum_albumExists_passes() {
+        List<Photo> photos = new ArrayList<>();
+        Photo photo = new Photo();
+        photo.setPhotoName(PHOTO_NAME);
+        photos.add(photo);
+
         when(albumRepository.existsById(ALBUM_ID)).thenReturn(true);
+        when(photoRepository.findAllByAlbumId(ALBUM_ID)).thenReturn(photos);
         albumService.deleteAlbum(ALBUM_ID);
 
         verify(albumRepository).existsById(ALBUM_ID);
+        verify(photoRepository).findAllByAlbumId(ALBUM_ID);
+        verify(photoRepository).delete(photo);
         verify(albumRepository).deleteById(ALBUM_ID);
     }
 

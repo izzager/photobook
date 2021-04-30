@@ -7,6 +7,7 @@ import com.example.photobook.entity.Album;
 import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
+import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.util.FileZipper;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final ModelMapper modelMapper;
     private final AlbumRepositoryHelper albumRepositoryHelper;
     private final CreateAlbumDtoMapper createAlbumDtoMapper;
+    private final PhotoRepository photoRepository;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
@@ -51,6 +53,12 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public void deleteAlbum(Long albumId) {
         if (albumRepository.existsById(albumId)) {
+            photoRepository
+                    .findAllByAlbumId(albumId)
+                    .forEach(photo -> {
+                        new File(pathToFiles + File.separator + photo.getPhotoName()).delete();
+                        photoRepository.delete(photo);
+                    });
             albumRepository.deleteById(albumId);
         }
     }

@@ -18,7 +18,7 @@ public class PhotoRepositoryHelper {
                 .orElseThrow(() -> new ResourceNotFoundException("Photo not found"));
     }
 
-    public Photo ensurePhotoExists(Long photoId, Long albumId) {
+    public Photo ensurePhotoExists(Long albumId, Long photoId) {
         return photoRepository
                 .findById(photoId)
                 .filter(photo -> photo.getAlbum().getId().equals(albumId))

@@ -66,8 +66,8 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public File findPhotoById(Long photoId, Long albumId) throws IOException {
-        Photo photo = photoRepositoryHelper.ensurePhotoExists(photoId, albumId);
+    public File findPhotoById(Long albumId, Long photoId) throws IOException {
+        Photo photo = photoRepositoryHelper.ensurePhotoExists(albumId, photoId);
         Optional<File> file = downloadingStatusHelper.findLocalFileInstance(photo.getPhotoName());
         if (file.isPresent()) {
             return file.get();

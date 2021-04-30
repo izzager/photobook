@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public interface PhotoService {
     void deletePhoto(Long photoId);
-    File findPhotoById(Long photoId, Long albumId) throws IOException;
+    File findPhotoById(Long albumId, Long photoId) throws IOException;
     PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException;
     PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto);
 }
