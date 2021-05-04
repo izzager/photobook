@@ -1,6 +1,8 @@
 package com.example.photobook.validator;
 
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.exception.ResourceForbiddenException;
+import com.example.photobook.repository.AlbumRepository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,10 +14,20 @@ import java.util.List;
 @Component
 public class UploadPhotoDtoValidator {
 
-    @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}")
-    private List<String> allowedContentTypes;
+    private final AlbumRepository albumRepository;
+    private final List<String> allowedContentTypes;
+
+    public UploadPhotoDtoValidator(AlbumRepository albumRepository,
+                                   @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}") List<String> allowedContentTypes) {
+        this.albumRepository = albumRepository;
+        this.allowedContentTypes = allowedContentTypes;
+    }
 
     public void checkPhotoUploadingFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
+        if (!albumRepository.existsAlbumByIdAndUserOwnerUsername(uploadPhotoDto.getAlbumId(),
+                                                                    uploadPhotoDto.getUsername())) {
+            throw new ResourceForbiddenException("You are not the owner of this album");
+        }
         if (uploadPhotoDto.getLink() != null) {
             throw new IllegalArgumentException("You upload photo from computer, not link");
         }

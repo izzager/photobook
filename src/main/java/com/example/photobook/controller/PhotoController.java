@@ -40,6 +40,7 @@ public class PhotoController {
                                        @Validated @RequestPart(name = "photoData") UploadPhotoDto uploadPhotoDto,
                                        @RequestPart(name = "photo") MultipartFile file) throws IOException {
         uploadPhotoDto.setAlbumId(albumId);
+        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         return photoService.uploadPhotoFromComputer(uploadPhotoDto, file);
     }
 
