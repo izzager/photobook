@@ -20,4 +20,6 @@ public class TestConstants {
     public static final Long USER_ID = 1L;
     public static final String USERNAME = "username";
     public static final String USER_ROLE = "ROLE_USER";
+    public static final String USER_PASSWORD = "password";
+    public static final String TOKEN = "token";
 }
