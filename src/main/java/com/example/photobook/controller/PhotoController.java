@@ -48,6 +48,7 @@ public class PhotoController {
     public PhotoDto uploadByUrl(@PathVariable Long albumId,
                                 @Validated @RequestBody UploadPhotoDto uploadPhotoDto) {
         uploadPhotoDto.setAlbumId(albumId);
+        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         return photoService.uploadPhotoByUrl(uploadPhotoDto);
     }
 

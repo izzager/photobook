@@ -35,6 +35,10 @@ public class UploadPhotoDtoValidator {
     }
 
     public void checkPhotoUploadingByUrl(UploadPhotoDto uploadPhotoDto) {
+        if (!albumRepository.existsAlbumByIdAndUserOwnerUsername(uploadPhotoDto.getAlbumId(),
+                                                                    uploadPhotoDto.getUsername())) {
+            throw new ResourceForbiddenException("You are not the owner of this album");
+        }
         if (uploadPhotoDto.getLink() == null) {
             throw new IllegalArgumentException("Link must not be null");
         }
