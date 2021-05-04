@@ -3,6 +3,8 @@ package com.example.photobook.exception;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -45,6 +47,18 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(value = HttpStatus.GATEWAY_TIMEOUT)
     public String handleTimeoutException(final TimeoutException e) {
         return "Time is out";
+    }
+
+    @ExceptionHandler({BadCredentialsException.class})
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleBadCredentialsException(final BadCredentialsException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class})
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public String handleUsernameNotFoundException(final UsernameNotFoundException e) {
+        return "User not found";
     }
 
     @Override
