@@ -1,5 +1,8 @@
-INSERT INTO album (album_name) VALUES ('random');
-INSERT INTO album (album_name) VALUES ('cats');
+INSERT INTO users (password, username) VALUES ('pass', 'user1');
+INSERT INTO users (password, username) VALUES ('password', 'user2');
+
+INSERT INTO album (album_name, user_id) VALUES ('random', 1);
+INSERT INTO album (album_name, user_id) VALUES ('cats', 2);
 
 INSERT INTO photo (load_date, load_source, photo_name, album_id) VALUES ('2021-04-13 15:56:02', 'device', 'pom.xml', 1);
 INSERT INTO photo (load_date, load_source, photo_name, album_id) VALUES ('2021-04-13 15:56:02', 'device', 'README.md', 1);
