@@ -11,4 +11,5 @@ public class AlbumDto {
 
     private String albumName;
 
+    private Long userOwnerId;
 }
