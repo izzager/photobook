@@ -29,6 +29,7 @@ import java.util.Optional;
 import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.ALBUM_NAME;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static com.example.photobook.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,7 +90,7 @@ public class AlbumServiceImplTest {
 
         when(albumRepository.existsById(ALBUM_ID)).thenReturn(true);
         when(photoRepository.findAllByAlbumId(ALBUM_ID)).thenReturn(photos);
-        albumService.deleteAlbum(ALBUM_ID);
+        albumService.deleteAlbum(ALBUM_ID, USERNAME);
 
         verify(albumRepository).existsById(ALBUM_ID);
         verify(photoRepository).findAllByAlbumId(ALBUM_ID);

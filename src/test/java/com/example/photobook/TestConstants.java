@@ -16,4 +16,7 @@ public class TestConstants {
     public static final String PATH_TO_FILES = ".";
     public static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
     public static final Long MILLISECONDS = 1000L;
+
+    public static final Long USER_ID = 1L;
+    public static final String USERNAME = "username";
 }

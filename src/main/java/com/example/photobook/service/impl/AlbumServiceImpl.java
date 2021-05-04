@@ -51,8 +51,8 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void deleteAlbum(Long albumId) {
-        if (albumRepository.existsById(albumId)) {
+    public void deleteAlbum(Long albumId, String username) {
+        if (albumRepository.existsAlbumByIdAndUserOwnerUsername(albumId, username)) {
             photoRepository
                     .findAllByAlbumId(albumId)
                     .forEach(photo -> {

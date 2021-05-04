@@ -13,7 +13,7 @@ public class CreateAlbumDto {
     @NotBlank(message = "Album name must be not blank")
     private String albumName;
 
-    @Null(message = "UserId must be null")
-    private Long userOwnerId;
+    @Null(message = "Username must be null")
+    private String username;
 
 }
