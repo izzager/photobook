@@ -2,6 +2,7 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.exception.ControllerExceptionHandler;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.service.PhotoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,6 +31,7 @@ import static com.example.photobook.TestConstants.ALBUM_ID;
 import static com.example.photobook.TestConstants.PHOTO_ID;
 import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static com.example.photobook.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +50,9 @@ class PhotoControllerTest {
     @Mock
     private AlbumService albumService;
 
+    @Mock
+    private UserContext userContext;
+
     @BeforeEach
     public void setup() {
         JacksonTester.initFields(this, new ObjectMapper());
@@ -61,7 +67,10 @@ class PhotoControllerTest {
                 "image/jpeg", "some file".getBytes());
         MockMultipartFile jsonFile = new MockMultipartFile("photoData", "",
                 "application/json", "{\"photoName\": \"someValue\"}".getBytes());
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         mvc.perform(MockMvcRequestBuilders
                         .multipart("/albums/{albumId}/photos/uploadFromComputer", ALBUM_ID)
                         .file(firstFile)
@@ -74,7 +83,10 @@ class PhotoControllerTest {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         uploadPhotoDto.setPhotoName(PHOTO_NAME);
         uploadPhotoDto.setLink(PHOTO_LINK);
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         mvc.perform(MockMvcRequestBuilders
                         .post("/albums/{albumId}/photos/uploadByUrl", ALBUM_ID)
                         .content(new ObjectMapper().writeValueAsString(uploadPhotoDto))
@@ -94,6 +106,10 @@ class PhotoControllerTest {
 
     @Test
     public void deletePhoto_passes() throws Exception {
+        Authentication authentication = Mockito.mock(Authentication.class);
+
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         MockHttpServletResponse response = mvc
                 .perform(MockMvcRequestBuilders
                         .delete("/albums/{albumId}/photos/{id}", ALBUM_ID, PHOTO_ID))

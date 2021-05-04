@@ -88,11 +88,11 @@ public class AlbumServiceImplTest {
         photo.setPhotoName(PHOTO_NAME);
         photos.add(photo);
 
-        when(albumRepository.existsById(ALBUM_ID)).thenReturn(true);
+        when(albumRepository.existsAlbumByIdAndUserOwnerUsername(ALBUM_ID, USERNAME)).thenReturn(true);
         when(photoRepository.findAllByAlbumId(ALBUM_ID)).thenReturn(photos);
         albumService.deleteAlbum(ALBUM_ID, USERNAME);
 
-        verify(albumRepository).existsById(ALBUM_ID);
+        verify(albumRepository).existsAlbumByIdAndUserOwnerUsername(ALBUM_ID, USERNAME);
         verify(photoRepository).findAllByAlbumId(ALBUM_ID);
         verify(photoRepository).delete(photo);
         verify(albumRepository).deleteById(ALBUM_ID);
