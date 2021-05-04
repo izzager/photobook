@@ -2,7 +2,6 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.UserDataDto;
 import com.example.photobook.entity.User;
-import com.example.photobook.mapperToEntity.UserDataDtoMapper;
 import com.example.photobook.security.AuthResponse;
 import com.example.photobook.security.JwtProvider;
 import com.example.photobook.service.UserService;
@@ -21,12 +20,11 @@ public class SecurityController {
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
-    private final UserDataDtoMapper userDataDtoMapper;
 
     @PostMapping("/registration")
     @ResponseStatus(value = HttpStatus.OK)
     public void registerUser(@RequestBody @Valid UserDataDto userDataDto) {
-        userService.saveUser(userDataDtoMapper.toEntity(userDataDto));
+        userService.saveUser(userDataDto);
     }
 
     @PostMapping("/auth")
