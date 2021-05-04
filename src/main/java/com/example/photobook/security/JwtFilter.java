@@ -14,12 +14,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class JwtFilter extends GenericFilterBean {
 
-    public static final String AUTHORIZATION = "Authorization";
+    private final String AUTHORIZATION = "Authorization";
+    private final List<String> IGNORING_URLS = Arrays.asList("/registration", "/auth");
 
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService userDetailsService;
@@ -37,28 +40,41 @@ public class JwtFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        String url = ((HttpServletRequest) servletRequest).getRequestURL().toString();
-        if (url.endsWith(contextPath + "/registration") || url.endsWith(contextPath + "/auth")) {
-            filterChain.doFilter(servletRequest, servletResponse);
-            return;
-        }
+        if (ignoringUrl(servletRequest, servletResponse, filterChain)) return;
+
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         Optional<String> tokenOptional = getTokenFromRequest((HttpServletRequest) servletRequest);
         if (tokenOptional.isPresent()) {
             String token = tokenOptional.get();
             if (jwtProvider.validateToken(token)) {
-                String username = jwtProvider.getUsernameFromToken(token);
-                CustomUserDetails customUserDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                setAuthentication(token);
                 filterChain.doFilter(servletRequest, servletResponse);
             } else {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid token");
             }
         } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "There is no token");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Empty token");
         }
+    }
+
+    private boolean ignoringUrl(ServletRequest servletRequest,
+                                ServletResponse servletResponse,
+                                FilterChain filterChain) throws IOException, ServletException {
+        String url = ((HttpServletRequest) servletRequest).getRequestURL().toString();
+        boolean isUrlIgnoring = IGNORING_URLS.stream()
+                .anyMatch(ignoring -> url.endsWith(contextPath + ignoring));
+        if (isUrlIgnoring) {
+            filterChain.doFilter(servletRequest, servletResponse);
+        }
+        return isUrlIgnoring;
+    }
+
+    private void setAuthentication(String token) {
+        String username = jwtProvider.getUsernameFromToken(token);
+        CustomUserDetails customUserDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     private Optional<String> getTokenFromRequest(HttpServletRequest request) {
