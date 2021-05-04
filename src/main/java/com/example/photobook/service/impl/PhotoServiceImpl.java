@@ -3,6 +3,7 @@ package com.example.photobook.service.impl;
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.exception.ResourceForbiddenException;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
@@ -53,6 +54,20 @@ public class PhotoServiceImpl implements PhotoService {
         this.downloadingStatusHelper = downloadingStatusHelper;
         this.loadingPhotoByURLHelper = loadingPhotoByURLHelper;
         this.pathToFiles = pathToFiles;
+    }
+
+    @Override
+    public void deletePhoto(Long photoId, String username) {
+        Optional<Photo> photoOptional = photoRepository.findById(photoId);
+        if (photoOptional.isPresent()) {
+            Photo photo = photoOptional.get();
+            if (!photo.getAlbum().getUserOwner().getUsername().equals(username)) {
+                throw new ResourceForbiddenException("You are not owner of this photo");
+            }
+            String pathToPhoto = pathToFiles + File.separator + photoOptional.get().getPhotoName();
+            photoRepository.deleteById(photoId);
+            new File(pathToPhoto).delete();
+        }
     }
 
     @Override

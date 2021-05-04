@@ -2,6 +2,7 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class PhotoController {
 
     private final PhotoService photoService;
     private final AlbumService albumService;
+    private final UserContext userContext;
 
     @PostMapping("uploadFromComputer")
     public PhotoDto uploadFromComputer(@PathVariable Long albumId,
@@ -56,7 +58,7 @@ public class PhotoController {
     @DeleteMapping("{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deletePhoto(@PathVariable Long id) {
-        photoService.deletePhoto(id);
+        photoService.deletePhoto(id, userContext.getAuthentication().getName());
     }
 
     @GetMapping("{id}")
