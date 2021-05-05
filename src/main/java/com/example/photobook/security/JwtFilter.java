@@ -14,6 +14,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +25,8 @@ import java.util.Optional;
 public class JwtFilter extends GenericFilterBean {
 
     private final String AUTHORIZATION = "Authorization";
-    private final List<String> IGNORING_URLS = Arrays.asList("/register", "/auth");
+    private final List<String> IGNORING_PATHS = Arrays.asList("/register", "/auth");
+    private final List<String> IGNORING_URLS;
 
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService userDetailsService;
@@ -34,39 +38,43 @@ public class JwtFilter extends GenericFilterBean {
         this.jwtProvider = jwtProvider;
         this.userDetailsService = userDetailsService;
         this.contextPath = contextPath;
+        IGNORING_URLS = new ArrayList<>();
+        IGNORING_PATHS.forEach(path -> IGNORING_URLS.add(this.contextPath + path));
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        if (ignoringUrl(servletRequest, servletResponse, filterChain)) return;
-
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        Optional<String> tokenOptional = getTokenFromRequest((HttpServletRequest) servletRequest);
-        if (tokenOptional.isPresent()) {
-            String token = tokenOptional.get();
-            if (jwtProvider.validateToken(token)) {
-                setAuthentication(token);
-                filterChain.doFilter(servletRequest, servletResponse);
-            } else {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid token");
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Empty token");
+        if (isWhitelisted(servletRequest, response)) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
         }
+
+        Optional<String> tokenOptional =
+                getTokenFromRequest((HttpServletRequest) servletRequest)
+                        .filter(jwtProvider::validateToken);
+
+        if (tokenOptional.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No valid JWT token found");
+            return;
+        }
+
+        setAuthentication(tokenOptional.get());
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private boolean ignoringUrl(ServletRequest servletRequest,
-                                ServletResponse servletResponse,
-                                FilterChain filterChain) throws IOException, ServletException {
-        String url = ((HttpServletRequest) servletRequest).getRequestURL().toString();
-        boolean isUrlIgnoring = IGNORING_URLS.stream()
-                .anyMatch(ignoring -> url.endsWith(contextPath + ignoring));
-        if (isUrlIgnoring) {
-            filterChain.doFilter(servletRequest, servletResponse);
+    private boolean isWhitelisted(ServletRequest servletRequest,
+                                  HttpServletResponse response) throws IOException {
+        try {
+            String url = ((HttpServletRequest) servletRequest).getRequestURL().toString();
+            String path = new URL(url).getPath();
+            return IGNORING_URLS.contains(path);
+        } catch (MalformedURLException ex) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization error");
+            return false;
         }
-        return isUrlIgnoring;
     }
 
     private void setAuthentication(String token) {
