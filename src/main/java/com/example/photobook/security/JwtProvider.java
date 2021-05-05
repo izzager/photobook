@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -33,7 +34,8 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+            checkClaims(claims);
             return true;
         } catch (JwtException | IllegalStateException e) {
             return false;
@@ -43,6 +45,12 @@ public class JwtProvider {
     public String getUsernameFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         return claims.getSubject();
+    }
+
+    private void checkClaims(Claims claims) {
+        if (!claims.getIssuer().equals(issuer)) {
+            throw new BadCredentialsException("Bad token");
+        }
     }
 
 }
