@@ -22,7 +22,7 @@ import java.util.Optional;
 public class JwtFilter extends GenericFilterBean {
 
     private final String AUTHORIZATION = "Authorization";
-    private final List<String> IGNORING_URLS = Arrays.asList("/registration", "/auth");
+    private final List<String> IGNORING_URLS = Arrays.asList("/register", "/auth");
 
     private final JwtProvider jwtProvider;
     private final CustomUserDetailsService userDetailsService;
