@@ -5,10 +5,12 @@ import com.example.photobook.dto.CreateAlbumDto;
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.entity.User;
 import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.repository.UserRepository;
 import com.example.photobook.security.UserContext;
 import com.example.photobook.util.FileZipper;
 import org.junit.jupiter.api.Test;
@@ -60,6 +62,9 @@ public class AlbumServiceImplTest {
     @Mock
     private UserContext userContext;
 
+    @Mock
+    private UserRepository userRepository;
+
     @Test
     public void findAllAlbums_passes() {
         List<Album> albums = new ArrayList<>();
@@ -80,6 +85,7 @@ public class AlbumServiceImplTest {
 
         when(userContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(USERNAME);
+        when(userRepository.findUserByUsername(USERNAME)).thenReturn(Optional.of(new User()));
         when(createAlbumDtoMapper.toEntity(albumDto)).thenReturn(album);
         when(albumRepository.save(album)).thenReturn(album);
         albumService.createAlbum(albumDto);

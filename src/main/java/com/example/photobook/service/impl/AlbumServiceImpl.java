@@ -8,12 +8,14 @@ import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.repository.UserRepository;
 import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.util.FileZipper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -34,6 +36,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final CreateAlbumDtoMapper createAlbumDtoMapper;
     private final PhotoRepository photoRepository;
     private final UserContext userContext;
+    private final UserRepository userRepository;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
@@ -48,15 +51,14 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public AlbumDto createAlbum(CreateAlbumDto albumDto) {
-        albumDto.setUsername(userContext.getAuthentication().getName());
         Album album = createAlbumDtoMapper.toEntity(albumDto);
+        pullUser(album);
         return modelMapper.map(albumRepository.save(album), AlbumDto.class);
     }
 
     @Override
     public void deleteAlbum(Long albumId) {
-        if (albumRepository
-                .existsAlbumByIdAndUserOwnerUsername(albumId, userContext.getAuthentication().getName())) {
+        if (albumRepository.existsAlbumByIdAndUserOwnerUsername(albumId, userContext.getAuthentication().getName())) {
             photoRepository
                     .findAllByAlbumId(albumId)
                     .forEach(photo -> {
@@ -100,6 +102,15 @@ public class AlbumServiceImpl implements AlbumService {
             zippedAlbum.writeTo(outputStream);
         }
         return file;
+    }
+
+    private void pullUser(Album album) {
+        userRepository
+                .findUserByUsername(userContext.getAuthentication().getName())
+                .ifPresentOrElse(album::setUserOwner,
+                        () -> {
+                            throw new UsernameNotFoundException("User not found");
+                        });
     }
 
 }
