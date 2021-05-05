@@ -7,6 +7,7 @@ import com.example.photobook.exception.ResourceForbiddenException;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.service.PhotoService;
 import com.example.photobook.util.DownloadingStatusHelper;
 import com.example.photobook.util.LoadingPhotoByURLHelper;
@@ -36,6 +37,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final PhotoRepositoryHelper photoRepositoryHelper;
     private final DownloadingStatusHelper downloadingStatusHelper;
     private final LoadingPhotoByURLHelper loadingPhotoByURLHelper;
+    private final UserContext userContext;
     private final String pathToFiles;
 
     public PhotoServiceImpl(PhotoRepository photoRepository,
@@ -45,6 +47,7 @@ public class PhotoServiceImpl implements PhotoService {
                             PhotoRepositoryHelper photoRepositoryHelper,
                             DownloadingStatusHelper downloadingStatusHelper,
                             LoadingPhotoByURLHelper loadingPhotoByURLHelper,
+                            UserContext userContext,
                             @Value("${photobookapp.downloading-directory}") String pathToFiles) {
         this.photoRepository = photoRepository;
         this.modelMapper = modelMapper;
@@ -53,27 +56,19 @@ public class PhotoServiceImpl implements PhotoService {
         this.photoRepositoryHelper = photoRepositoryHelper;
         this.downloadingStatusHelper = downloadingStatusHelper;
         this.loadingPhotoByURLHelper = loadingPhotoByURLHelper;
+        this.userContext = userContext;
         this.pathToFiles = pathToFiles;
-    }
-
-    @Override
-    public void deletePhoto(Long photoId, String username) {
-        Optional<Photo> photoOptional = photoRepository.findById(photoId);
-        if (photoOptional.isPresent()) {
-            Photo photo = photoOptional.get();
-            if (!photo.getAlbum().getUserOwner().getUsername().equals(username)) {
-                throw new ResourceForbiddenException("You are not owner of this photo");
-            }
-            String pathToPhoto = pathToFiles + File.separator + photoOptional.get().getPhotoName();
-            photoRepository.deleteById(photoId);
-            new File(pathToPhoto).delete();
-        }
     }
 
     @Override
     public void deletePhoto(Long photoId) {
         Optional<Photo> photoOptional = photoRepository.findById(photoId);
         if (photoOptional.isPresent()) {
+            Photo photo = photoOptional.get();
+            if (!photo.getAlbum().getUserOwner().getUsername()
+                    .equals(userContext.getAuthentication().getName())) {
+                throw new ResourceForbiddenException("You are not owner of this photo");
+            }
             String pathToPhoto = pathToFiles + File.separator + photoOptional.get().getPhotoName();
             photoRepository.deleteById(photoId);
             new File(pathToPhoto).delete();
@@ -95,6 +90,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto,
                                             MultipartFile file) throws IOException {
+        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         uploadPhotoDtoValidator.checkPhotoUploadingFromComputer(uploadPhotoDto, file);
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto, file));
         savePhotoOnServer(uploadPhotoDto, file);
@@ -104,6 +100,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto) {
+        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         uploadPhotoDtoValidator.checkPhotoUploadingByUrl(uploadPhotoDto);
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto));
         Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));

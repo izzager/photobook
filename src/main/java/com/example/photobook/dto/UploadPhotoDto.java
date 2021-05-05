@@ -20,6 +20,7 @@ public class UploadPhotoDto {
 
     private String link;
 
+    @Null(message = "Username must be null")
     private String username;
 
 }

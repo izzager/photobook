@@ -4,9 +4,11 @@ import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
 import com.example.photobook.entity.Album;
 import com.example.photobook.entity.Photo;
+import com.example.photobook.entity.User;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.util.DownloadingStatusHelper;
 import com.example.photobook.util.LoadingPhotoByURLHelper;
 import com.example.photobook.validator.UploadPhotoDtoValidator;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,6 +35,7 @@ import static com.example.photobook.TestConstants.PATH_TO_FILES;
 import static com.example.photobook.TestConstants.PHOTO_ID;
 import static com.example.photobook.TestConstants.PHOTO_LINK;
 import static com.example.photobook.TestConstants.PHOTO_NAME;
+import static com.example.photobook.TestConstants.USERNAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
@@ -65,6 +69,9 @@ class PhotoServiceImplTest {
     @Mock
     private LoadingPhotoByURLHelper loadingPhotoByURLHelper;
 
+    @Mock
+    private UserContext userContext;
+
     @Test
     public void uploadPhotoFromComputer_passes() throws IOException {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
@@ -72,7 +79,10 @@ class PhotoServiceImplTest {
         Photo photo = new Photo();
         MultipartFile file = Mockito.mock(MultipartFile.class);
         InputStream inputStream  = IOUtils.toInputStream("test data", "UTF-8");
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
         when(file.getInputStream()).thenReturn(inputStream);
         when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
@@ -94,7 +104,10 @@ class PhotoServiceImplTest {
     public void uploadPhotoFromComputer_notAllowedContentType_throwIllegalArgumentException() {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         MultipartFile file = Mockito.mock(MultipartFile.class);
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         doThrow(IllegalArgumentException.class)
                 .when(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto, file);
 
@@ -107,7 +120,10 @@ class PhotoServiceImplTest {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         uploadPhotoDto.setPhotoName(PHOTO_NAME);
         Photo photo = new Photo();
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
         when(photoRepository.save(photo)).thenReturn(photo);
         when(modelMapper.map(photo, PhotoDto.class)).thenReturn(new PhotoDto());
@@ -123,7 +139,13 @@ class PhotoServiceImplTest {
     @Test
     public void deletePhoto_passes() {
         Photo photo = new Photo();
+        photo.setAlbum(new Album());
+        photo.getAlbum().setUserOwner(new User());
+        photo.getAlbum().getUserOwner().setUsername(USERNAME);
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         when(photoRepository.findById(PHOTO_ID)).thenReturn(Optional.of(photo));
         photoService.deletePhoto(PHOTO_ID);
 

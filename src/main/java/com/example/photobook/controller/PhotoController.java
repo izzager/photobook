@@ -2,7 +2,6 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.PhotoDto;
 import com.example.photobook.dto.UploadPhotoDto;
-import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.service.PhotoService;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +32,12 @@ public class PhotoController {
 
     private final PhotoService photoService;
     private final AlbumService albumService;
-    private final UserContext userContext;
 
     @PostMapping("uploadFromComputer")
     public PhotoDto uploadFromComputer(@PathVariable Long albumId,
                                        @Validated @RequestPart(name = "photoData") UploadPhotoDto uploadPhotoDto,
                                        @RequestPart(name = "photo") MultipartFile file) throws IOException {
         uploadPhotoDto.setAlbumId(albumId);
-        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         return photoService.uploadPhotoFromComputer(uploadPhotoDto, file);
     }
 
@@ -48,7 +45,6 @@ public class PhotoController {
     public PhotoDto uploadByUrl(@PathVariable Long albumId,
                                 @Validated @RequestBody UploadPhotoDto uploadPhotoDto) {
         uploadPhotoDto.setAlbumId(albumId);
-        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
         return photoService.uploadPhotoByUrl(uploadPhotoDto);
     }
 
@@ -60,7 +56,7 @@ public class PhotoController {
     @DeleteMapping("{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deletePhoto(@PathVariable Long id) {
-        photoService.deletePhoto(id, userContext.getAuthentication().getName());
+        photoService.deletePhoto(id);
     }
 
     @GetMapping("{id}")

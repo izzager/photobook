@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 
 public interface PhotoService {
-    void deletePhoto(Long photoId, String username);
     void deletePhoto(Long photoId);
     File findPhotoById(Long albumId, Long photoId) throws IOException;
     PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) throws IOException;

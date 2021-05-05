@@ -2,7 +2,6 @@ package com.example.photobook.controller;
 
 import com.example.photobook.dto.AlbumDto;
 import com.example.photobook.dto.CreateAlbumDto;
-import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +28,6 @@ import java.util.List;
 public class AlbumController {
 
     private final AlbumService albumService;
-    private final UserContext userContext;
 
     @GetMapping
     public List<AlbumDto> findAllAlbums() {
@@ -39,12 +37,11 @@ public class AlbumController {
     @DeleteMapping("{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteAlbum(@PathVariable Long id) {
-        albumService.deleteAlbum(id, userContext.getAuthentication().getName());
+        albumService.deleteAlbum(id);
     }
 
     @PostMapping
     public AlbumDto createAlbum(@Validated @RequestBody CreateAlbumDto albumDto) {
-        albumDto.setUsername(userContext.getAuthentication().getName());
         return albumService.createAlbum(albumDto);
     }
 

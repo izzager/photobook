@@ -8,6 +8,7 @@ import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.service.AlbumService;
 import com.example.photobook.util.FileZipper;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class AlbumServiceImpl implements AlbumService {
     private final AlbumRepositoryHelper albumRepositoryHelper;
     private final CreateAlbumDtoMapper createAlbumDtoMapper;
     private final PhotoRepository photoRepository;
+    private final UserContext userContext;
 
     @Value("${photobookapp.downloading-directory}")
     private String pathToFiles;
@@ -46,13 +48,15 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public AlbumDto createAlbum(CreateAlbumDto albumDto) {
+        albumDto.setUsername(userContext.getAuthentication().getName());
         Album album = createAlbumDtoMapper.toEntity(albumDto);
         return modelMapper.map(albumRepository.save(album), AlbumDto.class);
     }
 
     @Override
-    public void deleteAlbum(Long albumId, String username) {
-        if (albumRepository.existsAlbumByIdAndUserOwnerUsername(albumId, username)) {
+    public void deleteAlbum(Long albumId) {
+        if (albumRepository
+                .existsAlbumByIdAndUserOwnerUsername(albumId, userContext.getAuthentication().getName())) {
             photoRepository
                     .findAllByAlbumId(albumId)
                     .forEach(photo -> {

@@ -9,6 +9,7 @@ import com.example.photobook.helper.AlbumRepositoryHelper;
 import com.example.photobook.mapperToEntity.CreateAlbumDtoMapper;
 import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
+import com.example.photobook.security.UserContext;
 import com.example.photobook.util.FileZipper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,6 +57,9 @@ public class AlbumServiceImplTest {
     @Mock
     private PhotoRepository photoRepository;
 
+    @Mock
+    private UserContext userContext;
+
     @Test
     public void findAllAlbums_passes() {
         List<Album> albums = new ArrayList<>();
@@ -71,7 +76,10 @@ public class AlbumServiceImplTest {
     public void createAlbum_passes() {
         CreateAlbumDto albumDto = new CreateAlbumDto();
         Album album = new Album();
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         when(createAlbumDtoMapper.toEntity(albumDto)).thenReturn(album);
         when(albumRepository.save(album)).thenReturn(album);
         albumService.createAlbum(albumDto);
@@ -87,10 +95,13 @@ public class AlbumServiceImplTest {
         Photo photo = new Photo();
         photo.setPhotoName(PHOTO_NAME);
         photos.add(photo);
+        Authentication authentication = Mockito.mock(Authentication.class);
 
+        when(userContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(USERNAME);
         when(albumRepository.existsAlbumByIdAndUserOwnerUsername(ALBUM_ID, USERNAME)).thenReturn(true);
         when(photoRepository.findAllByAlbumId(ALBUM_ID)).thenReturn(photos);
-        albumService.deleteAlbum(ALBUM_ID, USERNAME);
+        albumService.deleteAlbum(ALBUM_ID);
 
         verify(albumRepository).existsAlbumByIdAndUserOwnerUsername(ALBUM_ID, USERNAME);
         verify(photoRepository).findAllByAlbumId(ALBUM_ID);

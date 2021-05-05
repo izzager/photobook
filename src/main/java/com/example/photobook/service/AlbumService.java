@@ -11,7 +11,7 @@ import java.util.List;
 public interface AlbumService {
     List<AlbumDto> findAllAlbums();
     AlbumDto createAlbum(CreateAlbumDto albumDto);
-    void deleteAlbum(Long albumId, String username);
+    void deleteAlbum(Long albumId);
     File downloadAsZip(Long albumId) throws IOException;
     String findAlbumName(Long albumId);
     List<PhotoDto> findAllPhotosInAlbum(Long albumId);
