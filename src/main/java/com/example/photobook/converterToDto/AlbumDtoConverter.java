@@ -22,7 +22,6 @@ public class AlbumDtoConverter implements Converter<Album, AlbumDto> {
             albumDto = new AlbumDto();
         }
         modelMapper.map(album, albumDto);
-        albumDto.setUserOwnerId(album.getUserOwner().getId());
         return albumDto;
     }
 }
