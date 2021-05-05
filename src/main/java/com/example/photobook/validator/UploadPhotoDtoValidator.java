@@ -1,7 +1,6 @@
 package com.example.photobook.validator;
 
 import com.example.photobook.dto.UploadPhotoDto;
-import com.example.photobook.exception.ResourceForbiddenException;
 import com.example.photobook.repository.AlbumRepository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.validator.routines.UrlValidator;
@@ -24,10 +23,6 @@ public class UploadPhotoDtoValidator {
     }
 
     public void checkPhotoUploadingFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
-        if (!albumRepository.existsAlbumByIdAndUserOwnerUsername(uploadPhotoDto.getAlbumId(),
-                                                                    uploadPhotoDto.getUsername())) {
-            throw new ResourceForbiddenException("You are not the owner of this album");
-        }
         if (uploadPhotoDto.getLink() != null) {
             throw new IllegalArgumentException("You upload photo from computer, not link");
         }
@@ -35,10 +30,6 @@ public class UploadPhotoDtoValidator {
     }
 
     public void checkPhotoUploadingByUrl(UploadPhotoDto uploadPhotoDto) {
-        if (!albumRepository.existsAlbumByIdAndUserOwnerUsername(uploadPhotoDto.getAlbumId(),
-                                                                    uploadPhotoDto.getUsername())) {
-            throw new ResourceForbiddenException("You are not the owner of this album");
-        }
         if (uploadPhotoDto.getLink() == null) {
             throw new IllegalArgumentException("Link must not be null");
         }

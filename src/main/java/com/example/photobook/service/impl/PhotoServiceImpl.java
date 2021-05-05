@@ -6,6 +6,7 @@ import com.example.photobook.entity.Photo;
 import com.example.photobook.exception.ResourceForbiddenException;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
+import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.security.UserContext;
 import com.example.photobook.service.PhotoService;
@@ -38,6 +39,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final DownloadingStatusHelper downloadingStatusHelper;
     private final LoadingPhotoByURLHelper loadingPhotoByURLHelper;
     private final UserContext userContext;
+    private final AlbumRepository albumRepository;
     private final String pathToFiles;
 
     public PhotoServiceImpl(PhotoRepository photoRepository,
@@ -48,6 +50,7 @@ public class PhotoServiceImpl implements PhotoService {
                             DownloadingStatusHelper downloadingStatusHelper,
                             LoadingPhotoByURLHelper loadingPhotoByURLHelper,
                             UserContext userContext,
+                            AlbumRepository albumRepository,
                             @Value("${photobookapp.downloading-directory}") String pathToFiles) {
         this.photoRepository = photoRepository;
         this.modelMapper = modelMapper;
@@ -57,6 +60,7 @@ public class PhotoServiceImpl implements PhotoService {
         this.downloadingStatusHelper = downloadingStatusHelper;
         this.loadingPhotoByURLHelper = loadingPhotoByURLHelper;
         this.userContext = userContext;
+        this.albumRepository = albumRepository;
         this.pathToFiles = pathToFiles;
     }
 
@@ -90,7 +94,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public PhotoDto uploadPhotoFromComputer(UploadPhotoDto uploadPhotoDto,
                                             MultipartFile file) throws IOException {
-        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
+        checkUserRights(uploadPhotoDto.getAlbumId());
         uploadPhotoDtoValidator.checkPhotoUploadingFromComputer(uploadPhotoDto, file);
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto, file));
         savePhotoOnServer(uploadPhotoDto, file);
@@ -100,7 +104,7 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public PhotoDto uploadPhotoByUrl(UploadPhotoDto uploadPhotoDto) {
-        uploadPhotoDto.setUsername(userContext.getAuthentication().getName());
+        checkUserRights(uploadPhotoDto.getAlbumId());
         uploadPhotoDtoValidator.checkPhotoUploadingByUrl(uploadPhotoDto);
         uploadPhotoDto.setPhotoName(buildPhotoName(uploadPhotoDto));
         Photo savedPhoto = photoRepository.save(uploadPhotoDtoMapper.toEntity(uploadPhotoDto));
@@ -114,6 +118,13 @@ public class PhotoServiceImpl implements PhotoService {
         stream.write(bytes);
         stream.flush();
         stream.close();
+    }
+
+    private void checkUserRights(Long albumId) {
+        if (!albumRepository.existsAlbumByIdAndUserOwnerUsername(albumId,
+                userContext.getAuthentication().getName())) {
+            throw new ResourceForbiddenException("You are not the owner of this album");
+        }
     }
 
 }

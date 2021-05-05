@@ -7,6 +7,7 @@ import com.example.photobook.entity.Photo;
 import com.example.photobook.entity.User;
 import com.example.photobook.helper.PhotoRepositoryHelper;
 import com.example.photobook.mapperToEntity.UploadPhotoDtoMapper;
+import com.example.photobook.repository.AlbumRepository;
 import com.example.photobook.repository.PhotoRepository;
 import com.example.photobook.security.UserContext;
 import com.example.photobook.util.DownloadingStatusHelper;
@@ -72,10 +73,14 @@ class PhotoServiceImplTest {
     @Mock
     private UserContext userContext;
 
+    @Mock
+    private AlbumRepository albumRepository;
+
     @Test
     public void uploadPhotoFromComputer_passes() throws IOException {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         uploadPhotoDto.setPhotoName(PHOTO_NAME);
+        uploadPhotoDto.setAlbumId(ALBUM_ID);
         Photo photo = new Photo();
         MultipartFile file = Mockito.mock(MultipartFile.class);
         InputStream inputStream  = IOUtils.toInputStream("test data", "UTF-8");
@@ -83,6 +88,8 @@ class PhotoServiceImplTest {
 
         when(userContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(USERNAME);
+        when(albumRepository.existsAlbumByIdAndUserOwnerUsername(ALBUM_ID,
+                userContext.getAuthentication().getName())).thenReturn(true);
         ReflectionTestUtils.setField(photoService, "pathToFiles", PATH_TO_FILES);
         when(file.getInputStream()).thenReturn(inputStream);
         when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
@@ -103,11 +110,14 @@ class PhotoServiceImplTest {
     @Test
     public void uploadPhotoFromComputer_notAllowedContentType_throwIllegalArgumentException() {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
+        uploadPhotoDto.setAlbumId(ALBUM_ID);
         MultipartFile file = Mockito.mock(MultipartFile.class);
         Authentication authentication = Mockito.mock(Authentication.class);
 
         when(userContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(USERNAME);
+        when(albumRepository.existsAlbumByIdAndUserOwnerUsername(ALBUM_ID,
+                userContext.getAuthentication().getName())).thenReturn(true);
         doThrow(IllegalArgumentException.class)
                 .when(uploadPhotoDtoValidator).checkPhotoUploadingFromComputer(uploadPhotoDto, file);
 
@@ -119,11 +129,14 @@ class PhotoServiceImplTest {
     public void uploadPhotoByUrl_passes() {
         UploadPhotoDto uploadPhotoDto = new UploadPhotoDto();
         uploadPhotoDto.setPhotoName(PHOTO_NAME);
+        uploadPhotoDto.setAlbumId(ALBUM_ID);
         Photo photo = new Photo();
         Authentication authentication = Mockito.mock(Authentication.class);
 
         when(userContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(USERNAME);
+        when(albumRepository.existsAlbumByIdAndUserOwnerUsername(ALBUM_ID,
+                userContext.getAuthentication().getName())).thenReturn(true);
         when(uploadPhotoDtoMapper.toEntity(uploadPhotoDto)).thenReturn(photo);
         when(photoRepository.save(photo)).thenReturn(photo);
         when(modelMapper.map(photo, PhotoDto.class)).thenReturn(new PhotoDto());

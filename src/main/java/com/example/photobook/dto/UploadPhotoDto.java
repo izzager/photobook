@@ -20,6 +20,4 @@ public class UploadPhotoDto {
 
     private String link;
 
-    private String username;
-
 }
