@@ -44,10 +44,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsernameAndPassword(String username, String password) {
         User user = findByUsername(username);
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return user;
-        } else {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Wrong password");
         }
+        return user;
     }
 }
