@@ -5,7 +5,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -21,11 +20,15 @@ public class JwtProvider {
     @Value("${photobook.token-issuer}")
     private String issuer;
 
+    @Value("${photobook.token-audience}")
+    private String audience;
+
     public String generateToken(String username) {
         Date date = Date.from(LocalDate.now()
                 .plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .setIssuer(issuer)
+                .setAudience(audience)
                 .setSubject(username)
                 .setExpiration(date)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -35,9 +38,8 @@ public class JwtProvider {
     public boolean validateToken(String token) {
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-            checkClaims(claims);
-            return true;
-        } catch (JwtException | IllegalStateException e) {
+            return isCorrectClaims(claims);
+        } catch (JwtException | IllegalStateException | NullPointerException e) {
             return false;
         }
     }
@@ -47,10 +49,9 @@ public class JwtProvider {
         return claims.getSubject();
     }
 
-    private void checkClaims(Claims claims) {
-        if (!claims.getIssuer().equals(issuer)) {
-            throw new BadCredentialsException("Bad token");
-        }
+    private boolean isCorrectClaims(Claims claims) {
+        return claims.getIssuer().equals(issuer)
+                || claims.getAudience().equals(audience);
     }
 
 }
