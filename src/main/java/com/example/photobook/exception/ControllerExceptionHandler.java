@@ -50,9 +50,9 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({BadCredentialsException.class})
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public String handleBadCredentialsException(final BadCredentialsException e) {
-        return e.getMessage();
+        return "Bad credentials";
     }
 
     @ExceptionHandler({UsernameNotFoundException.class})
