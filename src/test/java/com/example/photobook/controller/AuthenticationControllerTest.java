@@ -57,7 +57,7 @@ class AuthenticationControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(MockMvcRequestBuilders
-                        .post("/registration")
+                        .post("/register")
                         .content(new ObjectMapper().writeValueAsString(userDataDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -73,7 +73,7 @@ class AuthenticationControllerTest {
 
         MockHttpServletResponse response =
                 mvc.perform(MockMvcRequestBuilders
-                        .post("/registration")
+                        .post("/register")
                         .content(new ObjectMapper().writeValueAsString(userDataDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

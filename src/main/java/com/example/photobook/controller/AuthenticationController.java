@@ -21,7 +21,7 @@ public class AuthenticationController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @PostMapping("/registration")
+    @PostMapping("/register")
     @ResponseStatus(value = HttpStatus.OK)
     public void registerUser(@RequestBody @Valid UserDataDto userDataDto) {
         userService.saveUser(userDataDto);
