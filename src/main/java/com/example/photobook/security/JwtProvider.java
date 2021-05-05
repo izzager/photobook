@@ -14,13 +14,17 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    @Value("$(jwt.secret)")
+    @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${photobook.token-issuer}")
+    private String issuer;
 
     public String generateToken(String username) {
         Date date = Date.from(LocalDate.now()
                 .plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
+                .setIssuer(issuer)
                 .setSubject(username)
                 .setExpiration(date)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
