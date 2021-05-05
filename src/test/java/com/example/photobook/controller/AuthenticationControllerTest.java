@@ -28,12 +28,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class SecurityControllerTest {
+class AuthenticationControllerTest {
 
     private MockMvc mvc;
 
     @InjectMocks
-    private SecurityController securityController;
+    private AuthenticationController authenticationController;
 
     @Mock
     private UserService userService;
@@ -44,7 +44,7 @@ class SecurityControllerTest {
     @BeforeEach
     public void setup() {
         JacksonTester.initFields(this, new ObjectMapper());
-        mvc = MockMvcBuilders.standaloneSetup(securityController)
+        mvc = MockMvcBuilders.standaloneSetup(authenticationController)
                 .setControllerAdvice(new ControllerExceptionHandler())
                 .build();
     }

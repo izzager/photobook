@@ -16,7 +16,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-public class SecurityController {
+public class AuthenticationController {
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
