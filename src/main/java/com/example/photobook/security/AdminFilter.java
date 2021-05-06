@@ -1,0 +1,27 @@
+package com.example.photobook.security;
+
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class AdminFilter extends OncePerRequestFilter {
+
+    private final String ADMIN_HOST = "localhost";
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest httpServletRequest,
+                                    HttpServletResponse httpServletResponse,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        if (!httpServletRequest.getRemoteHost()
+                .equals(ADMIN_HOST)) {
+            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not admin");
+            return;
+        }
+        filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+}
+
