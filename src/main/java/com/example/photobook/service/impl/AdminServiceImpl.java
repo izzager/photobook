@@ -31,16 +31,12 @@ public class AdminServiceImpl implements AdminService {
         List<User> users = userRepository.findAll();
         List<UserActivityDto> usersActivity = new ArrayList<>();
         for (User user : users) {
-            List<Photo> lastPhotoInAlbum = new ArrayList<>();
-            findLastPhotoInEachAlbum(user, lastPhotoInAlbum);
+            List<Photo> lastPhotoInAlbum = findLastPhotoInEachAlbum(user);
             if (lastPhotoInAlbum.isEmpty()) {
                 usersActivity.add(new UserActivityDto(user.getId(), user.getUsername(), null));
                 continue;
             }
-            Photo lastUserPhoto = Collections.max(lastPhotoInAlbum, Comparator.comparing(Photo::getLoadDate));
-            usersActivity.add(new UserActivityDto(user.getId(),
-                    user.getUsername(),
-                    lastUserPhoto.getLoadDate()));
+            usersActivity.add(getLastUserActivity(user, lastPhotoInAlbum));
         }
         return usersActivity;
     }
@@ -61,10 +57,17 @@ public class AdminServiceImpl implements AdminService {
         return toPlatformUsageDto(statistic);
     }
 
-    private void findLastPhotoInEachAlbum(User user, List<Photo> lastPhotoInAlbum) {
+    private List<Photo> findLastPhotoInEachAlbum(User user) {
+        List<Photo> lastPhotoInAlbum = new ArrayList<>();
         user.getAlbums().stream()
                 .map(photoRepository::findTopByAlbumOrderByLoadDateDesc)
                 .forEach(lastPhotoInAlbum::add);
+        return lastPhotoInAlbum;
+    }
+
+    private UserActivityDto getLastUserActivity(User user, List<Photo> lastPhotoInAlbum) {
+        Photo lastUserPhoto = Collections.max(lastPhotoInAlbum, Comparator.comparing(Photo::getLoadDate));
+        return new UserActivityDto(user.getId(), user.getUsername(), lastUserPhoto.getLoadDate());
     }
 
     private List<PlatformUsageDto> toPlatformUsageDto(Map <String, Long> statistic) {

@@ -18,7 +18,7 @@ public class AdminFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         if (!httpServletRequest.getRemoteHost()
                 .equals(ADMIN_HOST)) {
-            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not admin");
+            httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
             return;
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
