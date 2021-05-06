@@ -1,6 +1,5 @@
 package com.example.photobook.security;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,10 +16,10 @@ public class JwtProvider {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${photobook.token-issuer}")
+    @Value("${jwt.token-issuer}")
     private String issuer;
 
-    @Value("${photobook.token-audience}")
+    @Value("${jwt.token-audience}")
     private String audience;
 
     public String generateToken(String username) {
@@ -37,21 +36,23 @@ public class JwtProvider {
 
     public boolean validateToken(String token) {
         try {
-            Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-            return isCorrectClaims(claims);
+            Jwts.parser()
+                    .requireIssuer(issuer)
+                    .requireAudience(audience)
+                    .setSigningKey(jwtSecret)
+                    .parseClaimsJws(token);
+            return true;
         } catch (JwtException | IllegalStateException | NullPointerException e) {
             return false;
         }
     }
 
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        return claims.getSubject();
-    }
-
-    private boolean isCorrectClaims(Claims claims) {
-        return claims.getIssuer().equals(issuer)
-                || claims.getAudience().equals(audience);
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
 }
