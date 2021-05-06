@@ -55,6 +55,7 @@ class AlbumControllerTest {
         MockHttpServletResponse response = mvc
                 .perform(MockMvcRequestBuilders.delete("/albums/{id}", ALBUM_ID))
                 .andReturn().getResponse();
+
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatus());
     }
 

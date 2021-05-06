@@ -1,6 +1,7 @@
 package com.example.photobook.validator;
 
 import com.example.photobook.dto.UploadPhotoDto;
+import com.example.photobook.repository.AlbumRepository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +13,14 @@ import java.util.List;
 @Component
 public class UploadPhotoDtoValidator {
 
-    @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}")
-    private List<String> allowedContentTypes;
+    private final AlbumRepository albumRepository;
+    private final List<String> allowedContentTypes;
+
+    public UploadPhotoDtoValidator(AlbumRepository albumRepository,
+                                   @Value("#{'${photobookapp.allowed-photo-types}'.split(',')}") List<String> allowedContentTypes) {
+        this.albumRepository = albumRepository;
+        this.allowedContentTypes = allowedContentTypes;
+    }
 
     public void checkPhotoUploadingFromComputer(UploadPhotoDto uploadPhotoDto, MultipartFile file) {
         if (uploadPhotoDto.getLink() != null) {
