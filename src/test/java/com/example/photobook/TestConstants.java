@@ -12,6 +12,8 @@ public class TestConstants {
     public static final String PHOTO_CONTENT_TYPE = "image/jpeg";
     public static final String PHOTO_EXTENSION = ".jpeg";
     public static final String PHOTO_LINK = "http://link.link";
+    public static final String PHOTO_HOST = "link.link";
+    public static final String PHOTO_COMPUTER_LOAD = "device";
 
     public static final String PATH_TO_FILES = ".";
     public static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList("image/jpeg", "image/png");
