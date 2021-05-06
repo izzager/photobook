@@ -48,7 +48,7 @@ public class AdminServiceImpl implements AdminService {
                 .collect(Collectors.groupingBy(photo -> {
                             String loadSource = photo.getLoadSource();
                             try {
-                                return new URL(photo.getLoadSource()).getHost();
+                                return new URL(loadSource).getHost();
                             } catch (MalformedURLException e) {
                                 return loadSource;
                             }
