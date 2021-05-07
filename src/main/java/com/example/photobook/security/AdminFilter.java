@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
 
 public class AdminFilter extends OncePerRequestFilter {
 
@@ -16,8 +17,9 @@ public class AdminFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (!httpServletRequest.getRemoteHost()
-                .equals(ADMIN_HOST)) {
+        String url = httpServletRequest.getRequestURL().toString();
+        String host = new URL(url).getHost();
+        if (!host.equals(ADMIN_HOST)) {
             httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
             return;
         }
