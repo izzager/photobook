@@ -2,7 +2,9 @@ package com.example.photobook.configuration;
 
 import com.example.photobook.converterToDto.AlbumDtoConverter;
 import com.example.photobook.converterToDto.PhotoDtoConverter;
+import com.example.photobook.security.AdminFilter;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -31,5 +33,13 @@ public class PhotobookConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public FilterRegistrationBean<AdminFilter> adminFilter() {
+        FilterRegistrationBean<AdminFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new AdminFilter());
+        registrationBean.addUrlPatterns("/admin/*");
+        return registrationBean;
     }
 }
