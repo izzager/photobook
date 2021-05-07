@@ -17,7 +17,7 @@ $ docker run \
 --detach \
 -e MYSQL_ROOT_PASSWORD=“qwe123” \
 -e MYSQL_ROOT_HOST=% \
--e MYSQL_DATABASE=social \
+-e MYSQL_DATABASE=photobook \
 -v /tmp:/tmp \
 -p 3306:3306 \
 -d mysql/mysql-server:8.0 \
