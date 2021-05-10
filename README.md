@@ -12,8 +12,8 @@ It’s analogues to Pinterest and DeviantArt.
 
 1. Push database and application images:
 ```
-$ docker push mysql:8.0
-$ docker push telesina/photobook
+$ docker pull mysql:8.0
+$ docker pull telesina/photobook
 ```
 
 It's run Docker container and created database.
